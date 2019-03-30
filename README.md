@@ -10,9 +10,19 @@ This implementation does neither.
 
 Installing
 ---------------
-This requires pygame. On a Debian-based system, it can be installed with 
+This requires pygame. On a Debian-based sstem, it can be installed with 
 ```sudo apt-get install python-pygame```. Full instructions for installing 
 pygame are at http://www.pygame.org/download.shtml.
+
+Dependencies
+---------------
+
+- numpy 
+- matplotlib 
+- pygame 
+- sklearn 
+- bokeh 
+- scipy
 
 Running a game
 ----------------
