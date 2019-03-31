@@ -19,28 +19,27 @@ class RandomAI(GameAI):
         self.height = config.height
         self.exposed_squares.clear()
     def next(self):
-        #pdb.set_trace()
         while True:
             x = random.randint(0, self.width - 1)
             y = random.randint(0, self.height - 1)
             if (x, y) not in self.exposed_squares:
                 break
-        # print('selecting point ({0},{1})'.format(x, y))
+        print('selecting point ({0},{1})'.format(x, y))
         return x, y
 
     def update(self, result):
         for position in result.new_squares:
             self.exposed_squares.add((position.x, position.y))
 
-GAMES_COUNT=2000
-WIDTH =10
-HEIGHT=10
-MINES_COUNT=12
+GAMES_COUNT=10
+WIDTH =8
+HEIGHT=8
+MINES_COUNT=10
 
 ai = RandomAI()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer('key')
+viz = GameVisualizer(1)
 
 counter=0
 lstSteps=[]
@@ -53,7 +52,6 @@ while counter <GAMES_COUNT:
     ai.game= game
     if viz: viz.start(game)
     while not game.is_game_over():
-        #pdb.set_trace()
         coords = ai.next()
         result = game.select(*coords)
         if result is None:
@@ -65,13 +63,12 @@ while counter <GAMES_COUNT:
             if game.num_exposed_squares == game.num_safe_squares:
                 print("HORRRRRRRRRRRAAAY")
                 if viz: viz.update(game)
-                # pdb.set_trace()
                 counterWins+=1
         else:
             lstSteps.append(stepsCount)
             print("EXPLOSION")
-        # print(np.asarray(game.get_state()))
-        # print("\n")
+        #print(np.asarray(game.get_state()))
+        #print("\n")
         if viz: viz.update(game)
     if viz: viz.finish()
     counter+=1

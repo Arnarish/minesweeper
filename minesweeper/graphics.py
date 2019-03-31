@@ -18,7 +18,7 @@ class GameVisualizer(object):
 
     pause: how long to pause between moves in seconds or 'key' for pressing enter to continue
     """
-    def __init__(self, pause=3):
+    def __init__(self, pause=0.1):
         self.pause = pause
         self.game_width = 0
         self.game_height = 0
@@ -41,6 +41,7 @@ class GameVisualizer(object):
 
     def update(self, game):
         self._draw(game)
+
         if isinstance(self.pause, int):
             time.sleep(self.pause)
         else:
