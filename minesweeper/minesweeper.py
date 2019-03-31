@@ -14,9 +14,9 @@ class Game(object):
         self.width = config.width
         self.height = config.height
         self.num_mines = config.num_mines
-        self.board = [[False for y in xrange(self.height)] for x in xrange(self.width)]
-        self.exposed = [[False for y in xrange(self.height)] for x in xrange(self.width)]
-        self.counts = [[0 for y in xrange(self.height)] for x in xrange(self.width)]
+        self.board = [[False for y in range(self.height)] for x in range(self.width)]
+        self.exposed = [[False for y in range(self.height)] for x in range(self.width)]
+        self.counts = [[0 for y in range(self.height)] for x in range(self.width)]
         self.num_moves = 0
         self.num_safe_squares = self.width * self.height - self.num_mines
         self.num_exposed_squares = 0
@@ -52,9 +52,9 @@ class Game(object):
         None means not exposed and the rest are counts
         This does not contain the exploded mine if one exploded.
         """
-        state = [[None for y in xrange(self.height)] for x in xrange(self.width)]
-        for x in xrange(self.width):
-            for y in xrange(self.height):
+        state = [[None for y in range(self.height)] for x in range(self.width)]
+        for x in range(self.width):
+            for y in range(self.height):
                 if self.exposed[x][y]:
                     state[x][y] = self.counts[x][y]
         return state
@@ -76,8 +76,8 @@ class Game(object):
 
     def _init_counts(self):
         """Calculates how many neighboring squares have minds for all squares"""
-        for x in xrange(self.width):
-            for y in xrange(self.height):
+        for x in range(self.width):
+            for y in range(self.height):
                 for x_offset in [-1, 0, 1]:
                     for y_offset in [-1, 0, 1]:
                         if x_offset != 0 or y_offset != 0:
@@ -197,7 +197,7 @@ Returns a list of GameResult objects
 """
 def run_games(config, num_games, ai, viz=None):
     results = []
-    for x in xrange(num_games):
+    for x in range(num_games):
         game = Game(config)
         ai.init(config)
         if viz: viz.start(game)

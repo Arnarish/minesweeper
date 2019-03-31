@@ -1,2 +1,2 @@
-from minesweeper import *
-from graphics import GameVisualizer
+from minesweeper.minesweeper import *
+from minesweeper.graphics import GameVisualizer

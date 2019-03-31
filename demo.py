@@ -2,7 +2,7 @@ import minesweeper as ms
 import random
 
 
-class RandomAI(ms.GameAI):
+class RandomAI(GameAI):
     def __init__(self):
         self.width = 0
         self.height = 0
