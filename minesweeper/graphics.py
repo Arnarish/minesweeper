@@ -41,9 +41,8 @@ class GameVisualizer(object):
 
     def update(self, game):
         self._draw(game)
-
         if isinstance(self.pause, int):
-            time.sleep(self.pause)
+            time.sleep(self.pause * 0.75)
         else:
             input()
 
@@ -60,6 +59,7 @@ class GameVisualizer(object):
         return tiles
 
     def _draw(self, game):
+        pygame.event.get()
         for x in range(self.game_width):
             for y in range(self.game_height):
                 if not game.exposed[x][y]:

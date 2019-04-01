@@ -8,35 +8,41 @@ from sklearn.linear_model import Ridge
 from itertools import compress
 import matplotlib.pyplot as plt
 
-class RandomAI(GameAI):
+class Agent(GameAI):
+
     def __init__(self):
         self.width = 0
         self.height = 0
-        self.exposed_squares = set()
+        self.exposedSquares = set()
 
     def init(self, config):
         self.width = config.width
         self.height = config.height
-        self.exposed_squares.clear()
+        self.exposedSquares = set()
+        self.exposedSquares.clear()
+
+
     def next(self):
         while True:
             x = random.randint(0, self.width - 1)
             y = random.randint(0, self.height - 1)
-            if (x, y) not in self.exposed_squares:
+            if (x, y) not in self.exposedSquares:
                 break
         print('selecting point ({0},{1})'.format(x, y))
         return x, y
 
     def update(self, result):
         for position in result.new_squares:
-            self.exposed_squares.add((position.x, position.y))
+            self.exposedSquares.add((position.x, position.y))
+
+
 
 GAMES_COUNT=10
 WIDTH =8
 HEIGHT=8
 MINES_COUNT=10
 
-ai = RandomAI()
+ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
 viz = GameVisualizer(2)
@@ -72,19 +78,3 @@ while counter <GAMES_COUNT:
         if viz: viz.update(game)
     if viz: viz.finish()
     counter+=1
-
-"""
-plt.hist(lstSteps,normed=0,bins=np.max(lstSteps),edgecolor='black')
-plt.show()
-TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
-p1 = figure(tools=TOOLS, toolbar_location="above",
-    title="Random AI (GAMES_COUNT: ) "+str(GAMES_COUNT)+" . " +str(counterWins) +" Wins.",
-    logo="grey",background_fill_color="#E8DDCB")
-hist, edges = np.histogram(np.asarray(lstSteps), density=False, bins=np.max(lstSteps))
-p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],fill_color="#036564", line_color="#033649")
-p1.legend.location = "center_right"
-p1.legend.background_fill_color = "darkgrey"
-
-
-show(p1)
-"""

@@ -1,4 +1,4 @@
-import minesweeper as ms
+import minesweeper.minesweeper as ms
 import random
 
 
