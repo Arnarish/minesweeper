@@ -84,8 +84,10 @@ class Agent(GameAI):
             if not set(l).isdisjoint(temp):
                 counter+=1
                 inCommon.append(i)
+                
             i+=1
-
+        print("ALL NEIGHBOURS:",allNeighbours)
+        print("isCommon:",inCommon)
         if counter == 0:
             while True:
                 x = random.randint(0, self.width - 1)
@@ -95,7 +97,7 @@ class Agent(GameAI):
                 print('selecting point ({0},{1})'.format(x, y))
             return x, y
         else:
-            flags = self.get_flags()
+            flags = self.get_flags(inCommon)
             for f in flags:
                 self.flags.append(f)
                 self.mines-=1
@@ -114,7 +116,7 @@ class Agent(GameAI):
         for key,value in self.exposedSquares.items():
             if value > 0:
                 self.numberedSquares.update({key : value})
-    def get_flags(self):
+    def get_flags(self,inCommon):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
         """
@@ -124,8 +126,13 @@ class Agent(GameAI):
         #numberedSquares,minesLeft,grid,gridWidth,gridHeight
         print("NUMBERED SQUARES: ",self.numberedSquares)
         print("CURRENT GRID: ",self.currGrid)
-
-        eval1 = Evaluation(self.numberedSquares,self.mines,self.currGrid,self.width,self.height)
+        i = 0
+        relevantNumberedSquares = {}
+        for k,v in self.numberedSquares.items():
+            if i in inCommon:
+                relevantNumberedSquares.update({k : v})
+            i+=1
+        eval1 = Evaluation(relevantNumberedSquares,self.mines,self.currGrid,self.width,self.height)
         flags = eval1.equationSolver()
         print("MINES:", flags)
         return flags

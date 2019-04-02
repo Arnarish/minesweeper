@@ -11,7 +11,8 @@ class Evaluation:
         self.gridWidth = gridWidth
         self.gridHeight = gridHeight
         self.flags = []
-
+        self.variables = []
+        self.results = []
     def init(self, numberedSquares, minesLeft, grid, gridWidth, gridHeight):
         self.numberedSquares = numberedSquares #map where x,y is the key and the number is the value
         self.minesLeft = minesLeft #int number of mines
@@ -19,6 +20,7 @@ class Evaluation:
         self.gridWidth = gridWidth
         self.gridHeight = gridHeight
         self.flags = []
+        self.results = []
 
     def setGrid(self, grid):
         self.grid = grid
@@ -55,8 +57,8 @@ class Evaluation:
         #makes a list of lists of zeros of length n where each list contains m zeros
         return [[0]*m] * n
 
-    def getEquations(self,neighbours,variables,matrixA):
-        #print("VARIABLES: ",variables)
+    def getEquations(self,neighbours,matrixA):
+        #print("self.variables: ",self.variables)
         #print("NEIGHBOURS: ",neighbours)
        
         #if I didn't make a copy of matrixA, when changing the 0's to 1's there was a conflict
@@ -64,16 +66,16 @@ class Evaluation:
         matrixB = np.array(matrixA)
         print(matrixB)
         for i in range(0,len(neighbours)-1):
-            for j in range(0,len(variables)-1):
-                if variables[j] in neighbours[i]:
-                    print(variables[j]," is in ",neighbours[i])
+            for j in range(0,len(self.variables)-1):
+                if self.variables[j] in neighbours[i]:
+                    #print(self.variables[j]," is in ",neighbours[i])
                     print("changing position ",i,j," on the list")
                     matrixB[i][j] = 1
-                    
-            if self.isSingular(matrixB[i]):
-                matrixB = np.delete(matrixB, i , 0)
+            
+        matrixB = self.removeSingularOnes(matrixB)
+    
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
-        
+        print(matrixB)
         return matrixB
 
     def isSingular(self, list):
@@ -85,19 +87,44 @@ class Evaluation:
             return True
         return False
 
-    def removeDuplicates(self, matrix, r):
+    def removeDuplicates(self, matrix):
+        print("removing duplicates....")
+        print(matrix)
         tmp = np.unique(matrix,axis=0)
         #tmp = matrix.tolist()
+        print(tmp)
+        print("DONE REMOVING DUPLICATES")
         return tmp, r
 
-    def removeSingularOnes(self, matrix,r):
-        """
-        for x in range(0,len(matrix)):
-            if matrix[x].count(1) == 1: 
-                matrix.remove(matrix[x])
-                r.remove(r[x])
-        """
-        return matrix, r
+    def removeSingularOnes(self, matrix):
+        temp = matrix.tolist()
+        print("INITIAL TEMP: ",temp)
+        #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
+        #this means that the first variable is = 1; we then have to : 
+        print("INITIAL LENGTH: ",len(temp))
+        for i in range(0,len(temp)):
+            print("CURR LENGTH: ",len(temp),i)
+            if i == len(temp):
+                break
+            if temp[i].count(1)==1 and i<len(temp):
+                print(temp[i], " IS A SINGULAR MATRIX")
+                #1. remove the equation from the matrix
+                temp.remove(temp[i])
+                #2. pop the result for that equation
+                self.results.pop(i)
+                #3. append the variable to the flags and remove it (this is because it is a mine)
+                self.flags.append(self.variables.pop(i))
+                for j in range(0,len(temp)):
+                #3. remove the variable from each other equation and subtract the value in the result
+                    if temp[j][i] == 1:
+                        self.results[j]-=1
+                    temp[j].pop(i)
+                i-=1    
+                print(i)
+
+        print("TEMP AFTER REMOVING",temp)
+        matrix = np.array(temp)
+        return matrix
 
 
 
@@ -106,33 +133,33 @@ class Evaluation:
         #number of adjacent squares from a numberedSquare 
         listOfNeighbours = []
         matrixA = []
-        variables = [] #variables for the equations (every existing adjacent for each numberedsquare, no duplicates)
+        #self.variables for the equations (every existing adjacent for each numberedsquare, no duplicates)
         # 1. get foreach the list of adjacent squares for each numbered square->getAdjacent(x,y)
-        results = []
+        
         for key, val in self.numberedSquares.items():
             #print("Get adjacent of: ",item[0],item[1])
             temp = self.getAdjacent(key[0],key[1])
             #print(item[0],item[1]," has ",len(temp)," neighbours")
             if temp not in listOfNeighbours:
                 listOfNeighbours.append(temp)
-                results.append(val)
-        # 2. make a list of variables for the equations
-        variables = list(dict.fromkeys(itertools.chain(*listOfNeighbours)))
-        print("Variables: ",variables)
+                self.results.append(val)
+        # 2. make a list of self.variables for the equations
+        self.variables = list(dict.fromkeys(itertools.chain(*listOfNeighbours)))
+        print("self.variables: ",self.variables)
         # 3. create a list of lists, where the inner lists are filled with 0s -> listOfZeros(n)
-        matrixA = self.listOfZeros(len(listOfNeighbours),len(variables))
+        matrixA = self.listOfZeros(len(listOfNeighbours),len(self.variables))
         print("Matrix A: ",matrixA)
         # 4. fill the corresponding list with 1s where the 1s are the adjacent squares
         # and are of length of n (list1)
-        matrixA = self.getEquations(listOfNeighbours,variables,matrixA)
+        matrixA = self.getEquations(listOfNeighbours,matrixA)
         print("Matrix A: ",matrixA)
         # 5. the squares value goes into a seperate list (list2)
-        print("RESULTS: ",results)
+        print("self.results: ",self.results)
         # 6. calculate the np.linalg.solve(list1,list2)
         #print(matrixA)
-        #print(results)
+        #print(self.results)
         """
-        results = [2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1]
+        self.results = [2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1]
         matrixA = np.array([[1, 1, 1, 0, 0, 0, 0, 0, 0],  
                     [0, 1, 1, 1, 0, 0, 0, 0, 0],   
                     [0, 0, 1, 1, 1, 0, 0, 0, 0],    
@@ -145,17 +172,17 @@ class Evaluation:
                     [1, 0, 0, 0, 0, 0, 0, 0, 0],   
                     [0, 0, 0, 1, 1, 1, 1, 0, 1]])
         """
-        #matrixA, results = self.removeDuplicates(matrixA, results)
-        #matrixA, results = self.removeSingularOnes(matrixA, results)
+        #matrixA, self.results = self.removeDuplicates(matrixA, self.results)
+        #matrixA, self.results = self.removeSingularOnes(matrixA, self.results)
         print("2. Matrix A: ",matrixA)
-        print("2. RESULTS: ",results)
+        print("2. self.results: ",self.results)
 
-        minesSolved = np.linalg.solve(matrixA,results)
+        minesSolved = np.linalg.solve(matrixA,self.results)
         # 7. where there is a 1, means that:
         print("Mines: ",minesSolved)
         """for k in range(0, len(minesSolved)):
             if minesSolved[k] == 1:
-                self.flags.append(variables[k])"""
+                self.flags.append(self.self.variables[k])"""
         # E.G. if we have only 3 adjacent squares ([1,0,0][0,1,0][0,0,1])
         # and the result is [1,0,0] then that means the first square has a bomb, rest don't  
         #print("MINES: "+flags)
