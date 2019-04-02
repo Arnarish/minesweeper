@@ -12,6 +12,19 @@ class Evaluation:
         self.gridHeight = gridHeight
         self.flags = []
 
+    def init(self, numberedSquares, minesLeft, grid, gridWidth, gridHeight):
+        self.numberedSquares = numberedSquares #map where x,y is the key and the number is the value
+        self.minesLeft = minesLeft #int number of mines
+        self.grid = grid #the grid right now
+        self.gridWidth = gridWidth
+        self.gridHeight = gridHeight
+        self.flags = []
+
+    def setGrid(self, grid):
+        self.grid = grid
+
+    def setMines(self, mines):
+        self.minesLeft = mines
 
     def getAdjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -90,6 +103,7 @@ class Evaluation:
         # 7. where there is a 1, means that:
         print("Mines: ",minesSolved)
         for k in range(0, len(minesSolved)):
+            print(minesSolved[k])
             if minesSolved[k] == 1:
                 self.flags.append(variables[k])
         # E.G. if we have only 3 adjacent squares ([1,0,0][0,1,0][0,0,1])
@@ -118,6 +132,5 @@ matrix = [[0,0,0,0],
     [0,0,0,0]]
 matrix[0][0] = 1
 print(matrix)
-
-print(Eval1.equationSolver())"""
-
+print(Eval1.equationSolver())
+"""

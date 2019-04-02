@@ -28,9 +28,15 @@ class Agent(GameAI):
         self.width = config.width
         self.height = config.height
         self.exposedSquares = {}
+        self.exposedSquares.clear()
         self.numberedSquares = {}
+        self.numberedSquares.clear()
         self.currGrid = []
+        self.currGrid.clear()
         self.get_flags()
+        self.mines = config.num_mines
+        self.eval1 = Evaluation(self.numberedSquares,game.get_state(),self.width,self.height)
+
 
     def adjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -44,7 +50,7 @@ class Agent(GameAI):
                 if i == 0 and j == 0:
                     continue
                 #so we don't go out of bounds...
-                elif -1 < (x + i) < HEIGHT and -1 < (y + j) < WIDTH:
+                elif -1 < (x + i) < self.height and -1 < (y + j) < self.width:
                     #print(x+i,y+j,"is not out of bounds")
                     #if its an unopened square
                     if self.currGrid[x+i][y+j] == None:
@@ -106,11 +112,15 @@ class Agent(GameAI):
         return is void
         """
         self.currGrid = game.get_state()
+        self.eval1.setGrid = currGrid
+
         for position in result.new_squares: 
             self.exposedSquares.update( {(position.x, position.y) : self.currGrid[position.x][position.y]} )
         for key,value in self.exposedSquares.items():
             if value > 0:
                 self.numberedSquares.update({key : value})
+
+
     def get_flags(self):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
@@ -123,9 +133,8 @@ class Agent(GameAI):
 
         print("NUMBERED SQUARES: ",self.numberedSquares)
         #numberedSquares,minesLeft,grid,gridWidth,gridHeight
-        #eval1 = Evaluation(numberedSquares,MINES_COUNT,self.currGrid,WIDTH,HEIGHT)
-        #flags = eval1.equationSolver()
-        #print("MINES:", flags)
+        flags = self.eval1.equationSolver()
+        print("MINES:", flags)
         return []
 
 

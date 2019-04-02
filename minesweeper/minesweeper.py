@@ -75,7 +75,7 @@ class Game(object):
             self.board[coords[0]][coords[1]] = True
 
     def _init_counts(self):
-        """Calculates how many neighboring squares have minds for all squares"""
+        """Calculates how many neighboring squares have mines for all squares"""
         for x in range(self.width):
             for y in range(self.height):
                 for x_offset in [-1, 0, 1]:
