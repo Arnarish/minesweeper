@@ -7,6 +7,8 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from itertools import compress
 import matplotlib.pyplot as plt
+from minesweeper import Evaluation
+
 
 class Agent(GameAI):
 
@@ -14,7 +16,7 @@ class Agent(GameAI):
         self.width = 0
         self.height = 0
         self.exposedSquares = set()
-        self.flags = list[tuple()]
+        self.flags = []
 
 
     def init(self, config):
@@ -27,6 +29,7 @@ class Agent(GameAI):
         self.height = config.height
         self.exposedSquares = set()
         self.exposedSquares.clear()
+        self.get_flags()
 
 
     def next(self):
@@ -54,11 +57,23 @@ class Agent(GameAI):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
         """
-        return []
+        currGrid = game.get_state()
+        numberedSquares = []
+        print(self.exposedSquares)
+        #getting the numbered squares only, value = 0 means that its just a safe unlocked square
+        for item in self.exposedSquares:
+            if item.value() > 0:
+                numberedSquares.append(item)
+        #numberedSquares,minesLeft,grid,gridWidth,gridHeight
+        eval1 = Evaluation(numberedSquares,MINES_COUNT,currGrid,WIDTH,HEIGHT)
+
+        flags = eval1.equationSolver()
+        print(flags)
+        return flags
 
 
 
-GAMES_COUNT=10
+GAMES_COUNT=3
 WIDTH =8
 HEIGHT=8
 MINES_COUNT=10
@@ -87,6 +102,7 @@ while counter <GAMES_COUNT:
             stepsCount+=1
             ai.update(result)
             game.set_flags(ai.get_flags())
+            ai.get_flags()
             if game.num_exposed_squares == game.num_safe_squares:
                 print("HORRRRRRRRRRRAAAY")
                 if viz: viz.update(game)
