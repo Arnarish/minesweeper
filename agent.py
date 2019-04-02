@@ -18,6 +18,7 @@ class Agent(GameAI):
         self.flags = []
         self.currGrid = []
         self.numberedSquares = {}
+        self.mines = 0
 
     def init(self, config):
         """
@@ -35,7 +36,6 @@ class Agent(GameAI):
         self.currGrid.clear()
         self.get_flags()
         self.mines = config.num_mines
-        self.eval1 = Evaluation(self.numberedSquares,game.get_state(),self.width,self.height)
 
 
     def adjacent(self,x,y):
@@ -125,21 +125,21 @@ class Agent(GameAI):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
         """
-        
-       
+        print("getting flags for...")
         #getting the numbered squares only, value = 0 means that its just a safe unlocked square
-        
-        
-
-        print("NUMBERED SQUARES: ",self.numberedSquares)
+        #print("NUMBERED SQUARES: ",self.numberedSquares)
         #numberedSquares,minesLeft,grid,gridWidth,gridHeight
-        flags = self.eval1.equationSolver()
+        print("NUMBERED SQUARES: ",self.numberedSquares)
+        print("CURRENT GRID: ",self.currGrid)
+
+        eval1 = Evaluation(self.numberedSquares,self.mines,self.currGrid,self.width,self.height)
+        flags = eval1.equationSolver()
         print("MINES:", flags)
-        return []
+        return flags
 
 
 
-GAMES_COUNT=5
+GAMES_COUNT=2
 WIDTH =8
 HEIGHT=8
 MINES_COUNT=10
@@ -168,7 +168,6 @@ while counter <GAMES_COUNT:
             stepsCount+=1
             ai.update(result)
             game.set_flags(ai.get_flags())
-            ai.get_flags()
             if game.num_exposed_squares == game.num_safe_squares:
                 print("HORRRRRRRRRRRAAAY")
                 if viz: viz.update(game)
