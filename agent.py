@@ -125,7 +125,7 @@ class Agent(GameAI):
         print("NUMBERED SQUARES: ",self.numberedSquares)
         print("CURRENT GRID: ",self.currGrid)
 
-        eval1 = Evaluation(self.numberedSquares,MINES_COUNT,self.currGrid,WIDTH,HEIGHT)
+        eval1 = Evaluation(self.numberedSquares,self.mines,self.currGrid,self.width,self.height)
         flags = eval1.equationSolver()
         print("MINES:", flags)
         return flags

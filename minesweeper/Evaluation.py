@@ -62,16 +62,16 @@ class Evaluation:
         #if I didn't make a copy of matrixA, when changing the 0's to 1's there was a conflict
         #where the matrix would end up full of 1's
         matrixB = np.array(matrixA)
-        
-        for i in range(0,len(neighbours)):
-            for j in range(0,len(variables)):
+        print(matrixB)
+        for i in range(0,len(neighbours)-1):
+            for j in range(0,len(variables)-1):
                 if variables[j] in neighbours[i]:
-                    #print(variables[j]," is in ",neighbours[i])
-                    #print("changing position ",i,j," on the list")
+                    print(variables[j]," is in ",neighbours[i])
+                    print("changing position ",i,j," on the list")
                     matrixB[i][j] = 1
-                    #print(matrixB)
+                    
             if self.isSingular(matrixB[i]):
-                matrixB.pop(matrixB[i])
+                matrixB = np.delete(matrixB, i , 0)
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
         
         return matrixB
