@@ -14,8 +14,15 @@ class Agent(GameAI):
         self.width = 0
         self.height = 0
         self.exposedSquares = set()
+        self.flags = list[tuple()]
+
 
     def init(self, config):
+        """
+        Initialize an AI to play a new game
+        config is a GameConfig object
+        return is void
+        """
         self.width = config.width
         self.height = config.height
         self.exposedSquares = set()
@@ -23,6 +30,9 @@ class Agent(GameAI):
 
 
     def next(self):
+        """
+        Returns the next move as a tuple of (x,y)
+        """
         while True:
             x = random.randint(0, self.width - 1)
             y = random.randint(0, self.height - 1)
@@ -32,8 +42,19 @@ class Agent(GameAI):
         return x, y
 
     def update(self, result):
+        """
+        Notify the AI of the result of the previous move
+        result is a MoveResult object
+        return is void
+        """
         for position in result.new_squares:
             self.exposedSquares.add((position.x, position.y))
+
+    def get_flags(self):
+        """
+        Return a list of coordinates for known mines. The coordinates are 2d tuples.
+        """
+        return []
 
 
 
@@ -78,3 +99,18 @@ while counter <GAMES_COUNT:
         if viz: viz.update(game)
     if viz: viz.finish()
     counter+=1
+
+
+# plt.hist(lstSteps,normed=0,bins=np.max(lstSteps),edgecolor='black')
+# plt.show()
+# TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
+# p1 = figure(tools=TOOLS, toolbar_location="above",
+#     title="Trained Agent 1mMem (GAMES_COUNT: ) "+str(GAMES_COUNT)+" . " +str(counterWins) +" Wins.",
+#     logo="grey",background_fill_color="#E8DDCB")
+# hist, edges = np.histogram(np.asarray(lstSteps), density=False, bins=np.max(lstSteps))
+# p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],fill_color="#036564", line_color="#033649")
+# p1.legend.location = "center_right"
+# p1.legend.background_fill_color = "darkgrey"
+
+
+# show(p1)
