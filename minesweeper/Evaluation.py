@@ -98,7 +98,7 @@ class Evaluation:
         return self.flags
 
 
-
+"""
 numberedSquares = {(0,0): 1,(1,0): 1, (2,0): 2, (3,0): 1}
 #print(numberedSquares.get((0,2)))
 minesLeft = 2
@@ -111,13 +111,13 @@ Eval1 = Evaluation(numberedSquares,minesLeft,grid,gridWidth,gridHeight)
 #print(Eval1.getAdjacent(0,0))
 #print(Eval1.listOfZeros(2,3))
 #print(Eval1.equationSolver())
-"""
+
 matrix = [[0,0,0,0],
     [0,0,0,0],
     [0,0,0,0],
     [0,0,0,0]]
 matrix[0][0] = 1
-print(matrix)"""
+print(matrix)
 
-print(Eval1.equationSolver())
+print(Eval1.equationSolver())"""
 
