@@ -20,7 +20,6 @@ Dependencies
 - numpy 
 - matplotlib 
 - pygame 
-- sklearn 
 - bokeh 
 - scipy
 

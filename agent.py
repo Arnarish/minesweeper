@@ -4,9 +4,9 @@ import pdb
 from minesweeper import *
 from bokeh.plotting import figure, show, output_file
 import numpy as np
-from sklearn.linear_model import Ridge
 from itertools import compress
 import matplotlib.pyplot as plt
+from minesweeper.Evaluation import Evaluation
 
 class Agent(GameAI):
 
@@ -27,18 +27,21 @@ class Agent(GameAI):
         self.height = config.height
         self.exposedSquares = set()
         self.exposedSquares.clear()
+        self.flags.clear()
+
 
 
     def next(self):
         """
         Returns the next move as a tuple of (x,y)
         """
+        print(game.get_state())        
         while True:
             x = random.randint(0, self.width - 1)
             y = random.randint(0, self.height - 1)
             if (x, y) not in self.exposedSquares:
                 break
-        print('selecting point ({0},{1})'.format(x, y))
+        #print('selecting point ({0},{1})'.format(x, y))
         return x, y
 
     def update(self, result):
@@ -49,6 +52,7 @@ class Agent(GameAI):
         """
         for position in result.new_squares:
             self.exposedSquares.add((position.x, position.y))
+        #print(self.exposedSquares)
 
     def get_flags(self):
         """
