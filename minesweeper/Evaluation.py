@@ -63,21 +63,25 @@ class Evaluation:
         #where the matrix would end up full of 1's
         matrixB = np.array(matrixA)
         print(matrixB)
-        for i in range(0,len(neighbours)-1):
-            for j in range(0,len(variables)-1):
-                if variables[j] in neighbours[i]:
+        for i in range(0,len(neighbours)):
+            for j in range(0,len(variables)):
+                if variables[j] in neighbours[i] :
                     print(variables[j]," is in ",neighbours[i])
                     print("changing position ",i,j," on the list")
                     matrixB[i][j] = 1
-                    
             if self.isSingular(matrixB[i]):
-                matrixB = np.delete(matrixB, i , 0)
+               tmp = matrixB.tolist()
+               tmp.remove(tmp[i])
+               matrixB = np.array(tmp)
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
-        
+        print(matrixB)
+
         return matrixB
 
     def isSingular(self, list):
         count = 0
+        if list.all() == 0:
+            return True
         for x in list:
             if x==1:
                 count += 1
