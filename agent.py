@@ -4,7 +4,6 @@ import pdb
 from minesweeper import *
 from bokeh.plotting import figure, show, output_file
 import numpy as np
-from sklearn.linear_model import Ridge
 from itertools import compress
 import matplotlib.pyplot as plt
 from minesweeper.Evaluation import Evaluation
@@ -19,6 +18,7 @@ class Agent(GameAI):
         self.flags = []
         self.currGrid = []
         self.numberedSquares = {}
+
     def init(self, config):
         """
         Initialize an AI to play a new game
@@ -131,7 +131,7 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=1
+GAMES_COUNT=5
 WIDTH =8
 HEIGHT=8
 MINES_COUNT=4

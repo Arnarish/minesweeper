@@ -4,7 +4,6 @@ import pdb
 from minesweeper import *
 from bokeh.plotting import figure, show, output_file
 import numpy as np
-from sklearn.linear_model import Ridge
 from itertools import compress
 import matplotlib.pyplot as plt
 
