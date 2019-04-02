@@ -14,7 +14,7 @@ class Agent(GameAI):
         self.width = 0
         self.height = 0
         self.exposedSquares = set()
-        self.flags = list[tuple()]
+        self.flags = []
 
 
     def init(self, config):
@@ -54,7 +54,7 @@ class Agent(GameAI):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
         """
-        return []
+        return self.flags
 
 
 
