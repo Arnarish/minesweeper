@@ -139,7 +139,7 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=5
+GAMES_COUNT=2
 WIDTH =8
 HEIGHT=8
 MINES_COUNT=5
@@ -147,7 +147,7 @@ MINES_COUNT=5
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(10)
+viz = GameVisualizer(2)
 
 counter=0
 lstSteps=[]

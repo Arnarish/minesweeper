@@ -105,7 +105,7 @@ class Evaluation:
         #this means that the first variable is = 1; we then have to : 
         #print("INITIAL LENGTH: ",len(temp))
         for i in range(0,len(temp)):
-            #print("CURR LENGTH: ",len(temp),i)
+            print(i)
             if i >= len(temp):
                 break
             if temp[i].count(1)==1 and i<len(temp):
@@ -121,10 +121,30 @@ class Evaluation:
                     if temp[j][i] == 1:
                         self.results[j]-=1
                     temp[j].pop(i)
-                i-=1    
+                if i > 2:
+                    i=0    
                 print(i)
+        
         for i in range(0,len(temp)):
-            #print("CURR LENGTH: ",len(temp),i)
+            print(i)
+            if i >= len(temp):
+                break
+            if self.results[i] == 0 and i<len(temp):
+                print(" ZERO RESULT AT RESULTS ", i)
+                #1. remove the equation from the matrix
+                temp.remove(temp[i])
+                #2. pop the result for that equation
+                self.results.pop(i)
+                for j in range(0,len(temp)):
+                #3. remove the variable from each other equation and subtract the value in the result
+                    if temp[j][i] == 1:
+                        self.results[j]-=1
+                    temp[j].pop(i)
+                if i > 2:
+                    i=0   
+
+        for i in range(0,len(temp)):
+            print(i)
             if i >= len(temp):
                 break
             if all(v == 0 for v in temp[i]) and i<len(temp):
@@ -132,26 +152,9 @@ class Evaluation:
                 print(temp[i], " IS A ZERO MATRIX")
                 temp.remove(temp[i])
                 self.results.pop(i)
-                i-=1 
-        for i in range(0,len(temp)):
-            #print("CURR LENGTH: ",len(temp),i)
-            if i >= len(temp):
-                break
-            if self.results[i] == 0 and i<len(temp):
-                print(temp[i], " ZERO RESULT")
-                #1. remove the equation from the matrix
-                temp.remove(temp[i])
-                #2. pop the result for that equation
-                self.results.pop(i)
-                #3. append the variable to the flags and remove it (this is because it is a mine)
-                self.flags.append(self.variables.pop(i))
-                for j in range(0,len(temp)):
-                #3. remove the variable from each other equation and subtract the value in the result
-                    if temp[j][i] == 1:
-                        self.results[j]-=1
-                    temp[j].pop(i)
-                i-=1    
-                print(i)
+                if i > 2:
+                    i=0
+
 
         print("TEMP AFTER REMOVING",temp)
         matrix = np.array(temp)
