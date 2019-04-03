@@ -80,7 +80,7 @@ class Evaluation:
             if self.mineCounter == 0:
                 return []
             okay = self.isOkay(matrixB)
-            if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2 or matrixB == np.array([]):
+            if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2:
                 return []
             else: 
                 if okay == 'o':
@@ -99,7 +99,7 @@ class Evaluation:
         count = 0
         if matrix == np.array([]):
             return 'n'
-        matrix = np.array(matrix)
+        #matrix = np.array(matrix)
         temp = matrix.tolist()
         #all of these cases can result from removing one of the other cases so we must clear the matrix
         for l in temp:
@@ -107,10 +107,10 @@ class Evaluation:
             if l.count(0) == len(l):
                 #there is a zero matrix
                 return 'z'
-            if l.count(1) == 1:
+            elif l.count(1) == 1:
                 #there is a singular matrix (e.g. 1 0 0 0)
                 return 'o'
-            if count < len(self.results) and self.results[count] <= 0:
+            elif count < len(self.results) and self.results[count] <= 0:
                 #there is a result 0
                 return 'r'
         return 't'    
@@ -153,8 +153,7 @@ class Evaluation:
                     break
             #print("CURR LENGTH: ",len(temp),i)
         
-        matrix = np.array(temp)
-        return matrix
+        return np.array(temp)
 
 
     def removeZeroOnes(self,matrix):
@@ -183,8 +182,7 @@ class Evaluation:
                     temp[j].pop(i)
                 i = 0
                 #print("Zero ones i: ",i)
-        matrix = np.array(temp)
-        return matrix
+        return np.array(temp)
 
     def removeResultZero(self,matrix):
         temp = matrix.tolist()
@@ -215,8 +213,7 @@ class Evaluation:
                     temp[j].pop(i)
                 #print("Remove result zero i: ",i)
         
-        matrix = np.array(temp)
-        return matrix
+        return np.array(temp)
     def equationSolver(self):
         #to make an equation of the form x0,x1,...,xn; n will be the highest 
         #number of adjacent squares from a numberedSquare 
@@ -247,7 +244,7 @@ class Evaluation:
         #print("VARIABLES: ",self.variables)
         matrixA = self.matrixValidation(matrixA)
         
-        if matrixA ==[]:
+        if matrixA ==np.array([]):
             return self.flags
         #print("Matrix A: ",matrixA, " size: ", matrixA.size)
         # 5. the squares value goes into a seperate list (list2)

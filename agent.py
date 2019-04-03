@@ -54,6 +54,10 @@ class Agent(GameAI):
                 #print("X,Y:",x,y)
                 if self.currGrid[x][y] == None and self.isLonely(x,y):
                     self.certainBombs.append((x,y))
+        #add the bombs to flags
+        for c in self.certainBombs:
+            if c not in self.flags:
+                self.flags.append(c)
 
 
     def isLonely(self,x,y):
@@ -100,16 +104,25 @@ class Agent(GameAI):
         """
         Returns the next move as a tuple of (x,y)
         """
-        #print(self.currGrid)
-        #TODO: CHANGE THIS TO ACTUALLY SELECT A SAFE SQUARE
-        #if the length of exposed squares is 1
-        #or if the squares exposed don't have neighbours in common
-        #-> we choose any square at random that is not a neighbor of the revealed
+
+        #Open the next square in the safe list
+        if len(self.safeSquares) != 0:
+            print("Selecting safe square: ", self.safeSquares[-1])
+            self.exploredSquares +=1
+            return self.safeSquares.pop()
+        #No mine has been found, roll the dice
+        elif len(self.flags) == 0:
+            self.exploredSquares +=1   
+            return self.selectSafe()
+        #Game ongoing, using some logic to choose a point and gain more information on the board
+        else:
+            self.exploredSquares +=1
+            return self.selectSafe()
+
+    def evaluateBoard(self):
         allNeighbours = []
         for k in self.numberedSquares:
-            #print("Getting adj of :",k[0],k[1])
             allNeighbours.append(self.adjacent(k[0],k[1]))
-            #print("ALL NEIGHBOURS: ",allNeighbours) 
         #squares that have neighbours in common with other squares, each number corresponds to the index in the numberedsquares
          
         self.adjSafeSquares(allNeighbours)
@@ -129,33 +142,14 @@ class Agent(GameAI):
             if not set(l).isdisjoint(temp):
                 counter+=1
                 inCommon.append(i)
-                
             i+=1
-        #print("ALL NEIGHBOURS:",allNeighbours)
-        #print("isCommon:",inCommon)
+
         #Find and update the known mines
         #Only required if we do not know of all mines
         self.findMines(inCommon)
-        self.clean()
+        self.clean(self.safeSquares)
         self.forbiddenSquares = self.mineNeighbours()
-        #No mines known, selecting a random point with some logic
-        if len(self.safeSquares) != 0:
-            print("Selecting safe square: ", self.safeSquares[-1])
-            self.exploredSquares +=1
-            return self.safeSquares.pop() 
 
-        elif len(self.flags) == 0:
-            self.exploredSquares +=1   
-            return self.selectSafe()
-
-        #Game ongoing, using some logic to choose a point and gain more information on the board
-        elif self.minesLeft >=0:
-            self.exploredSquares +=1
-            return self.selectSafe()
-
-        else:
-            self.exploredSquares +=1
-            return self.selectSafe()
     def selectSafe(self):
         length = len(self.nonExposedSquares)-1
         while True:
@@ -165,13 +159,7 @@ class Agent(GameAI):
                 print("XY is: ",xy)
                 break
         return xy
-        """
-        for n in self.nonExposedSquares:
-            if n not in self.exposedSquares and n not in self.flags and n not in self.forbiddenSquares:
-                return n"""
-                
         
-
     def getNonExposed(self):
         self.nonExposedSquares = []
         for x in range(0,self.width):
@@ -179,11 +167,7 @@ class Agent(GameAI):
                 if self.currGrid[x][y] == None:
                     self.nonExposedSquares.append((x,y))
 
-
     def findMines(self, inCommon):
-        #print("getting flags for...")
-        #print("NUMBERED SQUARES: ",self.numberedSquares)
-        #print("CURRENT GRID: ",self.currGrid)
         i = 0
         relevantNumberedSquares = {}
         for k,v in self.numberedSquares.items():
@@ -194,21 +178,18 @@ class Agent(GameAI):
         eval1 = Evaluation(relevantNumberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
         tempFlags = eval1.equationSolver()
         #print("TEMP FLAGS: ", tempFlags)
-
-        self.checkForCertainBombs()
         self.flags = tempFlags
-        for c in self.certainBombs:
-            if c not in self.flags:
-                self.flags.append(c)
+        self.checkForCertainBombs()
+        
         self.minesLeft = self.mineCount - len(self.flags)
         #print("MINES TO GO: ",self.minesLeft)
         #print("MINES:", self.flags)
 
-    def clean(self):
-        for x in self.safeSquares:
+    def clean(self, toClean):
+        for x in toClean:
             if x in self.flags:
-                #print("Removing ",x," from safe squares as it's a mine")
-                self.safeSquares.remove(x)
+                toClean.remove(x)
+        
 
     def adjSafeSquares(self, neighbours):
         i = 0
@@ -217,18 +198,18 @@ class Agent(GameAI):
         #we mark the rest of the squares as safe
         #remove the numbered square because the mines have all been found
         toDelete = []
+        tmp = []
         for key, val in self.numberedSquares.items():
             countNeighbours = 0
-            possibleSafe = []
             #print(neighbours[i])
             for n in neighbours[i]:
                 if(n in self.flags):
                     countNeighbours += 1
                 else:
-                    possibleSafe.append(n)
+                    tmp.append(n)
             if countNeighbours == val:
                 toDelete.append(key)
-                for p in possibleSafe:
+                for p in tmp:
                     self.safeSquares.append(p)
             i +=1
         if len(toDelete) > 0:
@@ -260,29 +241,26 @@ class Agent(GameAI):
         for key,value in self.exposedSquares.items():
             if value > 0:
                 self.numberedSquares.update({key : value})
+        self.evaluateBoard()
        
                 
-    def get_flags(self,inCommon):
+    def get_flags(self):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
         """
-        #getting the numbered squares only, value = 0 means that its just a safe unlocked square
-        #print("NUMBERED SQUARES: ",self.numberedSquares)
-        #numberedSquares,minesLeft,grid,gridWidth,gridHeight
-        
         return self.flags
 
 
 
-GAMES_COUNT=5
-WIDTH =9
-HEIGHT=9
-MINES_COUNT=10
+GAMES_COUNT=2
+WIDTH =16
+HEIGHT=16
+MINES_COUNT=40
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = None#GameVisualizer(2)
+viz = GameVisualizer(2)
 
 counter=0
 lstSteps=[]
