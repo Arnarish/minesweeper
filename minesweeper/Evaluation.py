@@ -78,10 +78,10 @@ class Evaluation:
         while okay != 't':
             #print("OKAY:",okay)
             if self.mineCounter == 0:
-                return []
+                return np.array([])
             okay = self.isOkay(matrixB)
             if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) == 0:
-                return []
+                return np.array([])
             else: 
                 if okay == 'o':
                     matrixB = self.removeSingularOnes(matrixB)
@@ -90,7 +90,7 @@ class Evaluation:
                 if okay == 'r':
                     matrixB = self.removeResultZero(matrixB)
                 if okay == 'n':
-                    return []     
+                    return np.array([])    
         #print("MINES FOUND: ",self.flags)    
         #print("TEMP AFTER REMOVING",matrixB)    
         return matrixB
@@ -135,12 +135,12 @@ class Evaluation:
                     temp.remove(temp[i])
                     #2. pop the result for that equation
                     if len(self.variables) == 0 or len(self.results) == 0:
-                        return []
+                        return np.array([])
                     if i < len(self.variables) and i < len(self.results):
                         self.results.pop(i)
                         self.flags.append(self.variables.pop(i))
                     else:
-                        return []
+                        return np.array([])
                     for j in range(0,len(temp)):
                     #3. remove the variable from each other equation and subtract the value in the result
                         #print(j,i)
@@ -158,7 +158,7 @@ class Evaluation:
 
     def removeZeroOnes(self,matrix):
         if matrix == np.array([]):
-            return []
+            return np.array([])
         temp = matrix.tolist()
         #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
         #this means that the first variable is = 1; we then have to : 
@@ -172,12 +172,12 @@ class Evaluation:
                 #print(temp[i], " IS A ZERO MATRIX, point:",self.variables[i])
                 temp.remove(temp[i])
                 if len(self.variables) == 0 or len(self.results) == 0:
-                    return []
+                    return np.array([])
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
                     self.variables.pop(i)
                 else:
-                    return []
+                    return np.array([])
                 for j in range(0,len(temp)):
                     temp[j].pop(i)
                 i = 0
@@ -199,12 +199,12 @@ class Evaluation:
                 temp.remove(temp[i])
                 #2. pop the result for that equation
                 if len(self.variables) == 0 or len(self.results) == 0:
-                    return []
+                    return np.array([])
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
                     self.variables.pop(i)
                 else:
-                    return []
+                    return np.array([])
                 for j in range(0,len(temp)):
                     if j >= len(temp):
                         break
