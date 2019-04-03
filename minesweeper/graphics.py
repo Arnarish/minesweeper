@@ -42,7 +42,7 @@ class GameVisualizer(object):
     def update(self, game):
         self._draw(game)
         if isinstance(self.pause, int):
-            time.sleep(self.pause * 0.75)
+            time.sleep(self.pause)
         else:
             input()
 

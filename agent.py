@@ -155,14 +155,12 @@ class Agent(GameAI):
     def selectSafe(self):
         while True:
             x = random.randint(0,self.width-1)
-            y = random.randint(0,self.width-1)
-            if (x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in self.forbiddenSquares:
+            y = random.randint(0,self.height-1)
+            if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
                 #print("Random selection: ",(x, y))
                 break
         return x, y  
 
-    def selectValid(self)
-        
 
     def findMines(self, inCommon):
         #print("getting flags for...")
@@ -257,15 +255,15 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=2
-WIDTH =16
-HEIGHT=16
-MINES_COUNT=20
+GAMES_COUNT=5
+WIDTH =8
+HEIGHT=8
+MINES_COUNT=10
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(2)
+viz = GameVisualizer(3)
 
 counter=0
 lstSteps=[]
