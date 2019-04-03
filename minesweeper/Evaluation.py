@@ -22,11 +22,6 @@ class Evaluation:
         self.flags = []
         self.results = []
 
-    def setGrid(self, grid):
-        self.grid = grid
-
-    def setMines(self, mines):
-        self.minesLeft = mines
 
     def getAdjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -74,9 +69,12 @@ class Evaluation:
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
         return np.array(matrixB)
     def matrixValidation(self,matrixB):
+        print("NR OF MINES:",self.minesLeft)
         okay = ''            
         while okay != 't':
             #print("OKAY:",okay)
+            if self.minesLeft == 0:
+                return []
             okay = self.isOkay(matrixB)
             if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2:
                 return []
@@ -126,28 +124,31 @@ class Evaluation:
             if i >= len(temp):
                 break
             if temp[i].count(1)==1 and i<len(temp):
-                #print(temp[i], " IS A SINGULAR MATRIX")
+                print(temp[i], " IS A SINGULAR MATRIX, POINT ",self.variables[i]," is a mine")
+                if self.minesLeft > 0:
                 #1. remove the equation from the matrix
-                temp.remove(temp[i])
-                #2. pop the result for that equation
-                if len(self.variables) == 0 or len(self.results) == 0:
-                    return []
-                if i < len(self.variables) and i < len(self.results):
-                    self.results.pop(i)
-                    self.flags.append(self.variables.pop(i))
-                else:
-                    return []
-                #3. append the variable to the flags and remove it (this is because it is a mine)
-                
-                for j in range(0,len(temp)):
-                #3. remove the variable from each other equation and subtract the value in the result
-                    #print(j,i)
-                    if temp[j][i] == 1:
-                        self.results[j]-=1
-                    temp[j].pop(i)
-                i = 0   
-                #print(i)
-            
+                    temp.remove(temp[i])
+                    #2. pop the result for that equation
+                    if len(self.variables) == 0 or len(self.results) == 0:
+                        return []
+                    if i < len(self.variables) and i < len(self.results):
+                        self.results.pop(i)
+                        self.flags.append(self.variables.pop(i))
+                    else:
+                        return []
+                    #3. append the variable to the flags and remove it (this is because it is a mine)
+                    
+                    for j in range(0,len(temp)):
+                    #3. remove the variable from each other equation and subtract the value in the result
+                        #print(j,i)
+                        if temp[j][i] == 1:
+                            self.results[j]-=1
+                        temp[j].pop(i)
+                    i = 0   
+                    #print(i)
+                    self.minesLeft -= 1
+                else: 
+                    break
             #print("CURR LENGTH: ",len(temp),i)
         
         matrix = np.array(temp)
@@ -241,6 +242,7 @@ class Evaluation:
 
         #print("INITIAL TEMP: ",matrixA)
         #print("INITIAL RESULTS: ",self.results)
+        print("VARIABLES: ",self.variables)
         matrixA = self.matrixValidation(matrixA)
 
         if matrixA ==[]:

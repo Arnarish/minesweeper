@@ -95,7 +95,7 @@ class Agent(GameAI):
                 inCommon.append(i)
                 
             i+=1
-        print("ALL NEIGHBOURS:",allNeighbours)
+        #print("ALL NEIGHBOURS:",allNeighbours)
         #print("isCommon:",inCommon)
         #Find and update the known mines
         #Only required if we do not know of all mines
@@ -114,36 +114,22 @@ class Agent(GameAI):
                 return x, y
         #we know where the mines are, selecting a point with no mines and not exposed
         elif self.minesLeft == 0:
-            restOfTheBoard = []
-            while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if(x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in restOfTheBoard:
-                    restOfTheBoard.append((x,y))
-                    self.exploredSquares += 1
-                    print('adding point ({0},{1})'.format(x, y))
-                    if self.exploredSquares == self.safeSquareCount:
-                        break
+            x,y = self.selectSafe()
+            return x, y
         #Game ongoing, using some logic to choose a point and gain more information on the board
         elif self.flags != [] and self.minesLeft !=0:
-            while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if(x,y) in random.choice(allNeighbours) and (x,y) not in self.flags:
-                    self.exploredSquares +=1
-                    print('using logic to select point ({0},{1})'.format(x,y))
-                    break
-            return x,y
-        else:
-            while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if(x,y) not in self.exposedSquares and (x,y) not in self.flags:
-                    self.exploredSquares += 1
-                    print('randomly selecting point ({0},{1})'.format(x, y))
-                    break
+            x,y = self.selectSafe()
             return x, y
-            
+        else:
+            x,y = self.selectSafe()
+            return x, y
+
+    def selectSafe(self):
+        for x in range(0,self.width):
+            for y in range(0,self.height):
+                
+                if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
+                    return x, y        
     def findMines(self, inCommon):
         #print("getting flags for...")
         #print("NUMBERED SQUARES: ",self.numberedSquares)
@@ -154,7 +140,7 @@ class Agent(GameAI):
             if i in inCommon:
                 relevantNumberedSquares.update({k : v})
             i+=1
-        eval1 = Evaluation(relevantNumberedSquares,self.mines,self.currGrid,self.width,self.height)
+        eval1 = Evaluation(self.numberedSquares,self.mines,self.currGrid,self.width,self.height)
         tempFlags = eval1.equationSolver()
         print("TEMP FLAGS: ", tempFlags)
         self.flags = tempFlags
