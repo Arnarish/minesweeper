@@ -131,6 +131,7 @@ class Agent(GameAI):
             while self.exploredSquares != self.safeSquareCount:
                 x, y = self.selectSafe()
                 if (x,y) not in safeSquares:
+                    self.exploredSquares +=1
                     safeSquares.append((x,y))
             return safeSquares
         else:

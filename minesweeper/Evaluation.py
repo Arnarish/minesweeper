@@ -120,7 +120,7 @@ class Evaluation:
         #print("INITIAL LENGTH: ",len(temp))
         for i in range(0,len(temp)):
             #print("CURR LENGTH: ",len(temp),i)
-            #print(i)
+            print(i)
             if i >= len(temp):
                 break
             if temp[i].count(1)==1 and i<len(temp):
