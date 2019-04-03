@@ -44,6 +44,9 @@ class Agent(GameAI):
         self.safeSquares = []
         self.certainBombs = []
         self.forbiddenSquares = []
+        self.nonExposedSquares = []
+        self.getNonExposed()
+       
 
     def checkForCertainBombs(self):
         for x in range(0,self.width-1):
@@ -136,30 +139,33 @@ class Agent(GameAI):
             return self.selectSafe()
 
         #Game ongoing, using some logic to choose a point and gain more information on the board
-        elif self.safeSquares != []:
-            #print("Selecting safe square: ", self.safeSquares[-1])
+        elif len(self.safeSquares) != 0:
+            print("Selecting safe square: ", self.safeSquares[-1])
             self.exploredSquares +=1
-            tempSafe = self.safeSquares.pop() 
-            return tempSafe
-
+            return self.safeSquares.pop() 
+            
         elif self.minesLeft >=0:
-            #print("Avoiding: ", self.forbiddenSquares)
             self.exploredSquares +=1
             return self.selectSafe()
 
         else:
-            x,y = self.selectSafe()
             self.exploredSquares +=1
-            return x, y
-
+            return self.selectSafe()
     def selectSafe(self):
         while True:
-            x = random.randint(0,self.width-1)
-            y = random.randint(0,self.height-1)
-            if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
-                #print("Random selection: ",(x, y))
+            i = random.randint(0,len(self.nonExposedSquares)-1)
+            xy = self.nonExposedSquares[i]
+            if xy not in self.exposedSquares and xy not in self.flags and xy not in self.forbiddenSquares:
+                print("XY is: ",xy)
                 break
-        return x, y  
+        return xy
+
+    def getNonExposed(self):
+        self.nonExposedSquares = []
+        for x in range(0,self.width):
+            for y in range(0,self.height):
+                if self.currGrid[x][y] == None:
+                    self.nonExposedSquares.append((x,y))
 
 
     def findMines(self, inCommon):
@@ -236,6 +242,7 @@ class Agent(GameAI):
         return is void
         """
         self.currGrid = game.get_state()
+        self.getNonExposed()
         for position in result.new_squares: 
             self.exposedSquares.update( {(position.x, position.y) : self.currGrid[position.x][position.y]} )
         for key,value in self.exposedSquares.items():
@@ -256,14 +263,14 @@ class Agent(GameAI):
 
 
 GAMES_COUNT=5
-WIDTH =8
-HEIGHT=8
-MINES_COUNT=10
+WIDTH =20
+HEIGHT=20
+MINES_COUNT=40
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(3)
+viz = GameVisualizer(2)
 
 counter=0
 lstSteps=[]
