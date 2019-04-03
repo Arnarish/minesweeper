@@ -22,12 +22,6 @@ class Evaluation:
         self.flags = []
         self.results = []
 
-    def setGrid(self, grid):
-        self.grid = grid
-
-    def setMines(self, mines):
-        self.minesLeft = mines
-
     def getAdjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
         # (x-1,y+1) (x,y+1) (x+1,y+1)

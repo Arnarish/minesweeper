@@ -31,13 +31,15 @@ class Agent(GameAI):
         self.exposedSquares.clear()
         self.numberedSquares = {}
         self.numberedSquares.clear()
+        self.flags = []
+        self.flags.clear()
         self.currGrid = []
         self.currGrid.clear()
         self.mines = []
         self.mines.clear()
         self.mineCount = config.num_mines
         self.minesLeft = self.mineCount
-        self.safeSquareCount = (self.width*self.height)-self.mineCount
+        self.safeSquareCount = game.num_safe_squares
         self.exploredSquares = 0
 
     def adjacent(self,x,y):
@@ -95,12 +97,12 @@ class Agent(GameAI):
                 inCommon.append(i)
                 
             i+=1
-        print("ALL NEIGHBOURS:",allNeighbours)
+        #print("ALL NEIGHBOURS:",allNeighbours)
         #print("isCommon:",inCommon)
         #Find and update the known mines
         #Only required if we do not know of all mines
-        if self.minesLeft != 0:
-            self.findMines(inCommon)
+        self.findMines(inCommon)
+        self.cleanMines()
         #No mines known, selecting a random point with some logic
         if self.flags == []:
                 while True:
@@ -112,24 +114,14 @@ class Agent(GameAI):
                         print('carefully selecting point ({0},{1})'.format(x, y))
                         break
                 return x, y
-        #we know where the mines are, selecting a point with no mines and not exposed
-        elif self.minesLeft == 0:
-            restOfTheBoard = []
-            while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if(x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in restOfTheBoard:
-                    restOfTheBoard.append((x,y))
-                    self.exploredSquares += 1
-                    print('adding point ({0},{1})'.format(x, y))
-                    if self.exploredSquares == self.safeSquareCount:
-                        break
         #Game ongoing, using some logic to choose a point and gain more information on the board
-        elif self.flags != [] and self.minesLeft !=0:
+        elif self.minesLeft >=0:
+            noClicky = self.mineNeighbours()
+            print("Avoiding: ", noClicky)
             while True:
                 x = random.randint(0, self.width - 1)
                 y = random.randint(0, self.height - 1)
-                if(x,y) in random.choice(allNeighbours) and (x,y) not in self.flags:
+                if(x,y) not in noClicky and (x,y) not in self.flags:
                     self.exploredSquares +=1
                     print('using logic to select point ({0},{1})'.format(x,y))
                     break
@@ -154,17 +146,33 @@ class Agent(GameAI):
             if i in inCommon:
                 relevantNumberedSquares.update({k : v})
             i+=1
-        eval1 = Evaluation(relevantNumberedSquares,self.mines,self.currGrid,self.width,self.height)
+        eval1 = Evaluation(relevantNumberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
         tempFlags = eval1.equationSolver()
         print("TEMP FLAGS: ", tempFlags)
         self.flags = tempFlags
         for flag in tempFlags:
             if flag != None and flag not in self.flags:
                 self.flags.append(flag)
-        self.minesLeft = self.mineCount - len(self.mines)
-        if self.minesLeft <= 0:
-            print(" ----- We should be done here -----")
+        self.minesLeft = self.mineCount - len(self.flags)
+        print("MINES TO GO: ",self.minesLeft)
         print("MINES:", self.flags)
+
+    def cleanMines(self):
+        temp = list(self.flags)
+        for mine in temp:
+            if mine in self.exposedSquares:
+                print(mine, " has been found not to be a mine, removing.")
+                temp.remove(mine)
+        self.flags = tuple(temp)
+
+    def mineNeighbours(self):
+        print("Finding mine neighbours")
+        mineNeighbours = []
+        for mine in self.flags:
+            tmp = self.adjacent(mine[0],mine[1])
+            for pos in tmp:
+                mineNeighbours.append(pos)
+        return tuple(mineNeighbours)
 
     def update(self, result):
         """
@@ -199,7 +207,7 @@ MINES_COUNT=5
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(3)
+viz = GameVisualizer(5)
 
 counter=0
 lstSteps=[]
@@ -220,6 +228,7 @@ while counter <GAMES_COUNT:
             stepsCount+=1
             ai.update(result)
             game.set_flags(ai.flags)
+            print(game.flags)
             if game.num_exposed_squares == game.num_safe_squares:
                 print("HORRRRRRRRRRRAAAY")
                 if viz: viz.update(game)
