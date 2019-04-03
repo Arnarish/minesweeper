@@ -47,7 +47,7 @@ class Agent(GameAI):
     def checkForCertainBombs(self):
         for x in range(0,self.width-1):
             for y in range(0,self.height-1):
-                print("X,Y:",x,y)
+                #print("X,Y:",x,y)
                 if self.currGrid[x][y] == None and self.isLonely(x,y):
                     self.certainBombs.append((x,y))
 
@@ -60,7 +60,7 @@ class Agent(GameAI):
                 elif -1 < (x + i) < self.height and -1 < (y + j) < self.width:
                     if self.currGrid[x+i][y+j] == None:
                         return False
-        print(x,y," is a loner!")
+        #print(x,y," is a loner!")
         return True
 
     def adjacent(self,x,y):
@@ -92,7 +92,7 @@ class Agent(GameAI):
         """
         Returns the next move as a tuple of (x,y)
         """
-        print(self.currGrid)
+        #print(self.currGrid)
         #TODO: CHANGE THIS TO ACTUALLY SELECT A SAFE SQUARE
         #if the length of exposed squares is 1
         #or if the squares exposed don't have neighbours in common
@@ -140,7 +140,7 @@ class Agent(GameAI):
                 return x, y
         #Game ongoing, using some logic to choose a point and gain more information on the board
         elif self.safeSquares != []:
-            print("IM DOING THE THING AT ", self.safeSquares[-1])
+            print("Selecting safe square: ", self.safeSquares[-1])
             self.exploredSquares +=1
             return self.safeSquares.pop()
         elif self.minesLeft >=0:
@@ -169,8 +169,8 @@ class Agent(GameAI):
     def selectSafe(self):
         for x in range(0,self.width):
             for y in range(0,self.height):
-                
                 if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
+                    print("Safe selection: ",(x, y))
                     return x, y  
 
     def findMines(self, inCommon):
@@ -186,31 +186,31 @@ class Agent(GameAI):
         self.minesLeft = self.mineCount - len(self.flags)
         eval1 = Evaluation(self.numberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
         tempFlags, tempSafe = eval1.equationSolver()
-        print("TEMP FLAGS: ", tempFlags)
+        #print("TEMP FLAGS: ", tempFlags)
         self.safeSquares = tempSafe
         self.checkForCertainBombs()
         self.flags = tempFlags
         for c in self.certainBombs:
             self.flags.append(c)
         self.minesLeft = self.mineCount - len(self.flags)
-        print("MINES TO GO: ",self.minesLeft)
-        print("MINES:", self.flags)
+        #print("MINES TO GO: ",self.minesLeft)
+        #print("MINES:", self.flags)
 
     def cleanMines(self):
         temp = list(self.flags)
         for mine in temp:
             if mine in self.exposedSquares:
-                print(mine, " has been found not to be a mine, removing.")
+                #print(mine, " has been found not to be a mine, removing.")
                 temp.remove(mine)
         self.flags = tuple(temp)
 
     def mineNeighbours(self):
-        print("Finding mine neighbours")
+        #print("Finding mine neighbours")
         if len(self.flags) == 0:
             return []
         mineNeighbours = []
         for mine in self.flags:
-            print(mine)
+            #sprint(mine)
             tmp = self.adjacent(mine[0],mine[1])
             for pos in tmp:
                 mineNeighbours.append(pos)

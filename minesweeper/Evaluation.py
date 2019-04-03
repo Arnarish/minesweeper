@@ -14,6 +14,8 @@ class Evaluation:
         self.variables = []
         self.results = []
         self.safe = []
+        self.mineCounter = -1
+
     def init(self, numberedSquares, minesLeft, grid, gridWidth, gridHeight):
         self.numberedSquares = numberedSquares #map where x,y is the key and the number is the value
         self.minesLeft = minesLeft #int number of mines
@@ -23,6 +25,7 @@ class Evaluation:
         self.flags = []
         self.results = []
         self.safe = []
+        self.mineCounter = self.minesLeft
 
     def getAdjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -74,7 +77,7 @@ class Evaluation:
         okay = ''            
         while okay != 't':
             #print("OKAY:",okay)
-            if self.minesLeft == 0:
+            if self.mineCounter == 0:
                 return []
             okay = self.isOkay(matrixB)
             if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2 or matrixB == []:
@@ -89,13 +92,13 @@ class Evaluation:
                 if okay == 'n':
                     return []   
             
-        print("MINES FOUND: ",self.flags)    
+        #print("MINES FOUND: ",self.flags)    
         #print("TEMP AFTER REMOVING",matrixB)    
         return matrixB
         
     def isOkay(self, matrix):
         count = 0
-        if matrix == []:
+        if matrix == np.array([]):
             return 'n'
         matrix = np.array(matrix)
         temp = matrix.tolist()
@@ -122,12 +125,13 @@ class Evaluation:
         #print("INITIAL LENGTH: ",len(temp))
         for i in range(0,len(temp)):
             #print("CURR LENGTH: ",len(temp),i)
-            print(i)
+            #print(i)
             if i >= len(temp):
                 break
             if temp[i].count(1)==1 and i<len(temp):
-                print(temp[i], " IS A SINGULAR MATRIX, POINT ",self.variables[i]," is a mine")
-                if self.minesLeft > 0:
+                #print(self.minesLeft)
+                #print(temp[i], " IS A SINGULAR MATRIX, POINT ",self.variables[i]," is a mine")
+                if True: #self.minesLeft > 0:
                 #1. remove the equation from the matrix
                     temp.remove(temp[i])
                     #2. pop the result for that equation
@@ -136,12 +140,8 @@ class Evaluation:
                     if i < len(self.variables) and i < len(self.results):
                         self.results.pop(i)
                         self.flags.append(self.variables.pop(i))
-                    if i > 0:
-                        i-=1
                     else:
                         return []
-                    #3. append the variable to the flags and remove it (this is because it is a mine)
-                    
                     for j in range(0,len(temp)):
                     #3. remove the variable from each other equation and subtract the value in the result
                         #print(j,i)
@@ -149,14 +149,14 @@ class Evaluation:
                             self.results[j]-=1
                         temp[j].pop(i)
                     i = 0   
-                    #print(i)
-                    self.minesLeft -= 1
+                    self.mineCounter = self.minesLeft - len(self.flags)
                 else: 
                     break
             #print("CURR LENGTH: ",len(temp),i)
         
         matrix = np.array(temp)
         return matrix
+
 
     def removeZeroOnes(self,matrix):
         if matrix == np.array([]):
@@ -171,19 +171,20 @@ class Evaluation:
                 break
             if all(v == 0 for v in temp[i]) and i<len(temp):
                 #some fields enter as pure zeroes, removing
-                print(temp[i], " IS A ZERO MATRIX, point:",self.variables[i])
+                #print(temp[i], " IS A ZERO MATRIX, point:",self.variables[i])
                 temp.remove(temp[i])
                 if len(self.variables) == 0 or len(self.results) == 0:
                     return []
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
-                    self.safe.append(self.variables.pop(i))
+                    self.variables.pop(i)
+                    #self.safe.append(self.variables.pop(i))
                 else:
                     return []
                 for j in range(0,len(temp)):
                     temp[j].pop(i)
                 i = 0
-                #print(i)
+                #print("Zero ones i: ",i)
         matrix = np.array(temp)
         return matrix
 
@@ -197,7 +198,7 @@ class Evaluation:
             if i >= len(temp):
                 break
             if self.results[i] == 0 and i<len(temp):
-                print(" ZERO RESULT , point:",self.variables[i])
+                #print(" ZERO RESULT , point:",self.variables[i])
                 #1. remove the equation from the matrix
                 temp.remove(temp[i])
                 #2. pop the result for that equation
@@ -216,7 +217,7 @@ class Evaluation:
                     temp[j].pop(i)
 
                 
-                #print(i)
+                #print("Remove result zero i: ",i)
         
         matrix = np.array(temp)
         return matrix
@@ -224,7 +225,7 @@ class Evaluation:
         #to make an equation of the form x0,x1,...,xn; n will be the highest 
         #number of adjacent squares from a numberedSquare 
         listOfNeighbours = []
-        matrixA = []
+        matrixA = np.array([])
         #self.variables for the equations (every existing adjacent for each numberedsquare, no duplicates)
         # 1. get foreach the list of adjacent squares for each numbered square->getAdjacent(x,y)
         
@@ -247,7 +248,7 @@ class Evaluation:
 
         #print("INITIAL TEMP: ",matrixA)
         #print("INITIAL RESULTS: ",self.results)
-        print("VARIABLES: ",self.variables)
+        #print("VARIABLES: ",self.variables)
         matrixA = self.matrixValidation(matrixA)
         
         if matrixA ==[]:
@@ -264,7 +265,7 @@ class Evaluation:
             return self.flags, self.safe
         
         # 7. where there is a 1, means that:
-        print("Mines: ",minesSolved)
+        #sprint("Mines: ",minesSolved)
         for k in range(0, len(minesSolved)):
             if minesSolved[k] == 1:
                 self.flags.append(self.variables[k])
