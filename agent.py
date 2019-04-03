@@ -134,16 +134,16 @@ class Agent(GameAI):
         self.clean()
         self.forbiddenSquares = self.mineNeighbours()
         #No mines known, selecting a random point with some logic
-        if len(self.flags) == 0:
+        if len(self.safeSquares) != 0:
+            print("Selecting safe square: ", self.safeSquares[-1])
+            self.exploredSquares +=1
+            return self.safeSquares.pop() 
+
+        elif len(self.flags) == 0:
             self.exploredSquares +=1   
             return self.selectSafe()
 
         #Game ongoing, using some logic to choose a point and gain more information on the board
-        elif len(self.safeSquares) != 0:
-            print("Selecting safe square: ", self.safeSquares[-1])
-            self.exploredSquares +=1
-            return self.safeSquares.pop() 
-            
         elif self.minesLeft >=0:
             self.exploredSquares +=1
             return self.selectSafe()
@@ -180,9 +180,9 @@ class Agent(GameAI):
             i+=1
         self.minesLeft = self.mineCount - len(self.flags)
         eval1 = Evaluation(relevantNumberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
-        tempFlags, tempSafe = eval1.equationSolver()
+        tempFlags = eval1.equationSolver()
         #print("TEMP FLAGS: ", tempFlags)
-        self.safeSquares = tempSafe
+
         self.checkForCertainBombs()
         self.flags = tempFlags
         for c in self.certainBombs:
@@ -263,9 +263,9 @@ class Agent(GameAI):
 
 
 GAMES_COUNT=5
-WIDTH =20
-HEIGHT=20
-MINES_COUNT=40
+WIDTH =9
+HEIGHT=9
+MINES_COUNT=10
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
