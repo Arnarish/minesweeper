@@ -70,7 +70,6 @@ class Agent(GameAI):
         # (x-1,y)   (x,y)   (x+1,y)
         # (x-1,y-1) (x,y-1) (x+1,y-1)
         neighbours = []
-        #print(self.grid)
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if i == 0 and j == 0:
@@ -138,13 +137,13 @@ class Agent(GameAI):
 
         #Game ongoing, using some logic to choose a point and gain more information on the board
         elif self.safeSquares != []:
-            print("Selecting safe square: ", self.safeSquares[-1])
+            #print("Selecting safe square: ", self.safeSquares[-1])
             self.exploredSquares +=1
             tempSafe = self.safeSquares.pop() 
             return tempSafe
 
         elif self.minesLeft >=0:
-            print("Avoiding: ", self.forbiddenSquares)
+            #print("Avoiding: ", self.forbiddenSquares)
             self.exploredSquares +=1
             return self.selectSafe()
 
@@ -157,10 +156,13 @@ class Agent(GameAI):
         while True:
             x = random.randint(0,self.width-1)
             y = random.randint(0,self.width-1)
-            if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
-                print("Safe selection: ",(x, y))
+            if (x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in self.forbiddenSquares:
+                #print("Random selection: ",(x, y))
                 break
         return x, y  
+
+    def selectValid(self)
+        
 
     def findMines(self, inCommon):
         #print("getting flags for...")
@@ -184,16 +186,15 @@ class Agent(GameAI):
                 self.flags.append(c)
         self.minesLeft = self.mineCount - len(self.flags)
         #print("MINES TO GO: ",self.minesLeft)
-        print("MINES:", self.flags)
+        #print("MINES:", self.flags)
 
     def clean(self):
         for x in self.safeSquares:
             if x in self.flags:
-                print("Removing ",x," from safe squares as it's a mine")
+                #print("Removing ",x," from safe squares as it's a mine")
                 self.safeSquares.remove(x)
 
     def adjSafeSquares(self, neighbours):
-        print("SAFE SQUARES?!")
         i = 0
         #get the number of neighbours that are bombs
         #if that number is equal to the val of the numbered square
@@ -203,7 +204,7 @@ class Agent(GameAI):
         for key, val in self.numberedSquares.items():
             countNeighbours = 0
             possibleSafe = []
-            print(neighbours[i])
+            #print(neighbours[i])
             for n in neighbours[i]:
                 if(n in self.flags):
                     countNeighbours += 1
@@ -224,7 +225,7 @@ class Agent(GameAI):
             return []
         mineNeighbours = []
         for mine in self.flags:
-            #sprint(mine)
+            #print(mine)
             tmp = self.adjacent(mine[0],mine[1])
             for pos in tmp:
                 mineNeighbours.append(pos)
@@ -256,15 +257,15 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=20
-WIDTH =10
-HEIGHT=10
-MINES_COUNT=10
+GAMES_COUNT=2
+WIDTH =16
+HEIGHT=16
+MINES_COUNT=20
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = None#GameVisualizer(1)
+viz = GameVisualizer(2)
 
 counter=0
 lstSteps=[]

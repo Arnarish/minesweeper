@@ -23,8 +23,11 @@ class Evaluation:
         self.gridWidth = gridWidth
         self.gridHeight = gridHeight
         self.flags = []
+        self.flags.clear()
         self.results = []
+        self.results.clear()
         self.safe = []
+        self.safe.clear()
         self.mineCounter = self.minesLeft
 
     def getAdjacent(self,x,y):
@@ -80,7 +83,7 @@ class Evaluation:
             if self.mineCounter == 0:
                 return []
             okay = self.isOkay(matrixB)
-            if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2 or matrixB == []:
+            if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2 or matrixB == np.array([]):
                 return []
             else: 
                 if okay == 'o':
