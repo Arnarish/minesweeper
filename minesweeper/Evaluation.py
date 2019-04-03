@@ -231,7 +231,7 @@ class Evaluation:
         for key, val in self.numberedSquares.items():
             #print("Get adjacent of: ",item[0],item[1])
             temp = self.getAdjacent(key[0],key[1])
-            #print(item[0],item[1]," has ",len(temp)," neighbours")
+            #print(item[0],item[1]," has ",len(temp)," neighbours")                
             if temp not in listOfNeighbours:
                 listOfNeighbours.append(temp)
                 self.results.append(val)
