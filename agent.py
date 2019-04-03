@@ -88,7 +88,7 @@ class Agent(GameAI):
             i+=1
         print("ALL NEIGHBOURS:",allNeighbours)
         print("isCommon:",inCommon)
-        if counter == 0:
+        if counter < 3:
             while True:
                 x = random.randint(0, self.width - 1)
                 y = random.randint(0, self.height - 1)
@@ -98,6 +98,15 @@ class Agent(GameAI):
             return x, y
         else:
             flags = self.get_flags(inCommon)
+            if flags == []:
+                while True:
+                    x = random.randint(0, self.width - 1)
+                    y = random.randint(0, self.height - 1)
+                    if (x, y) not in self.exposedSquares:
+                        break
+                    print('selecting point ({0},{1})'.format(x, y))
+                return x, y
+
             for f in flags:
                 self.flags.append(f)
                 self.mines-=1

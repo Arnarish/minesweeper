@@ -71,23 +71,36 @@ class Evaluation:
                     #print(self.variables[j]," is in ",neighbours[i])
                     print("changing position ",i,j," on the list")
                     matrixB[i][j] = 1
-            
-        matrixB = self.removeSingularOnes(matrixB)
-    
+        okay = ''            
+        while okay != 't':
+            okay = self.isOkay(matrixB)
+            if okay == 'o':
+                matrixB = self.removeSingularOnes(matrixB)
+            if okay == 'z':
+                matrixB = self.removeZeroOnes(matrixB)
+            if okay == 'r':
+                matrixB = self.removeResultZero(matrixB)
+            if okay == 'n':
+                return []    
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
         print(matrixB)
         return matrixB
 
-    def isSingular(self, list):
+    def isOkay(self, matrix):
         count = 0
-        if list.all() == 0:
-            return True
-        for x in list:
-            if x==1:
-                count += 1
-        if count == 1:
-            return True
-        return False
+        if matrix == np.array([]):
+            return
+        temp = matrix.tolist()
+        
+        for l in temp:
+            count+=1
+            if l.count(0) == len(l):
+                return 'z'
+            if l.count(1) == 1:
+                return 'o'
+            if self.results[count] <= 0:
+                return 'r'
+        return 't'    
 
     def removeDuplicates(self, matrix):
         print("removing duplicates....")
@@ -96,15 +109,19 @@ class Evaluation:
         #tmp = matrix.tolist()
         print(tmp)
         print("DONE REMOVING DUPLICATES")
-        return tmp, r
+        return tmp
 
     def removeSingularOnes(self, matrix):
+        if matrix == np.array([]):
+            return
         temp = matrix.tolist()
         print("INITIAL TEMP: ",temp)
+        print("INITIAL RESULTS: ",self.results)
         #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
         #this means that the first variable is = 1; we then have to : 
         #print("INITIAL LENGTH: ",len(temp))
         for i in range(0,len(temp)):
+            #print("CURR LENGTH: ",len(temp),i)
             print(i)
             if i >= len(temp):
                 break
@@ -121,12 +138,44 @@ class Evaluation:
                     if temp[j][i] == 1:
                         self.results[j]-=1
                     temp[j].pop(i)
-                if i > 2:
-                    i=0    
+                i = 0   
                 print(i)
-        
+            
+            #print("CURR LENGTH: ",len(temp),i)
+            
+        print("TEMP AFTER REMOVING",temp)
+        matrix = np.array(temp)
+        return matrix
+
+    def removeZeroOnes(self,matrix):
+        if matrix == np.array([]):
+            return
+        temp = matrix.tolist()
+        print("INITIAL TEMP: ",temp)
+        print("INITIAL RESULTS: ",self.results)
+        #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
+        #this means that the first variable is = 1; we then have to : 
+        #print("INITIAL LENGTH: ",len(temp))
         for i in range(0,len(temp)):
-            print(i)
+        #print("CURR LENGTH: ",len(temp),i)
+            if i >= len(temp):
+                break
+            if all(v == 0 for v in temp[i]) and i<len(temp):
+                #some fields enter as pure zeroes, removing
+                print(temp[i], " IS A ZERO MATRIX")
+                temp.remove(temp[i])
+                self.results.pop(i)
+                i = 0
+                print(i)
+        return matrix
+    def removeResultZero(self,matrix):
+        temp = matrix.tolist()
+        print("INITIAL TEMP: ",temp)
+        print("INITIAL RESULTS: ",self.results)
+        #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
+        #this means that the first variable is = 1; we then have to : 
+        #print("INITIAL LENGTH: ",len(temp))
+        for i in range(0,len(temp)):
             if i >= len(temp):
                 break
             if self.results[i] == 0 and i<len(temp):
@@ -140,28 +189,9 @@ class Evaluation:
                     if temp[j][i] == 1:
                         self.results[j]-=1
                     temp[j].pop(i)
-                if i > 2:
-                    i=0   
-
-        for i in range(0,len(temp)):
-            print(i)
-            if i >= len(temp):
-                break
-            if all(v == 0 for v in temp[i]) and i<len(temp):
-                #some fields enter as pure zeroes, removing
-                print(temp[i], " IS A ZERO MATRIX")
-                temp.remove(temp[i])
-                self.results.pop(i)
-                if i > 2:
-                    i=0
-
-
-        print("TEMP AFTER REMOVING",temp)
-        matrix = np.array(temp)
+                i = 0   
+                print(i)
         return matrix
-
-
-
     def equationSolver(self):
         #to make an equation of the form x0,x1,...,xn; n will be the highest 
         #number of adjacent squares from a numberedSquare 
@@ -186,6 +216,9 @@ class Evaluation:
         # 4. fill the corresponding list with 1s where the 1s are the adjacent squares
         # and are of length of n (list1)
         matrixA = self.getEquations(listOfNeighbours,matrixA)
+
+        if matrixA == 0:
+            return []
         print("Matrix A: ",matrixA)
         # 5. the squares value goes into a seperate list (list2)
         print("self.results: ",self.results)
