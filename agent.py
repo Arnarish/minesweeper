@@ -44,6 +44,9 @@ class Agent(GameAI):
         self.safeSquares = []
         self.certainBombs = []
         self.forbiddenSquares = []
+        self.nonExposedSquares = []
+        self.getNonExposed()
+       
 
     def checkForCertainBombs(self):
         for x in range(0,self.width-1):
@@ -154,15 +157,19 @@ class Agent(GameAI):
 
     def selectSafe(self):
         while True:
-            x = random.randint(0,self.width-1)
-            y = random.randint(0,self.width-1)
-            if (x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in self.forbiddenSquares:
-                #print("Random selection: ",(x, y))
+            i = random.randint(0,len(self.nonExposedSquares)-1)
+            xy = self.nonExposedSquares[i]
+            if xy not in self.exposedSquares and xy not in self.flags and xy not in self.forbiddenSquares:
                 break
-        return x, y  
+        return xy
 
-    def selectValid(self)
-        
+    def getNonExposed(self):
+        self.nonExposedSquares = []
+        for x in range(0,self.width):
+            for y in range(0,self.height):
+                if self.currGrid[x][y] == None:
+                    self.nonExposedSquares.append((x,y))
+
 
     def findMines(self, inCommon):
         #print("getting flags for...")
@@ -238,6 +245,7 @@ class Agent(GameAI):
         return is void
         """
         self.currGrid = game.get_state()
+        self.getNonExposed()
         for position in result.new_squares: 
             self.exposedSquares.update( {(position.x, position.y) : self.currGrid[position.x][position.y]} )
         for key,value in self.exposedSquares.items():
