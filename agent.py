@@ -142,7 +142,13 @@ class Agent(GameAI):
         elif self.safeSquares != []:
             print("Selecting safe square: ", self.safeSquares[-1])
             self.exploredSquares +=1
-            return self.safeSquares.pop()
+            tempSafe = self.safeSquares.pop() 
+            while tempSafe in self.flags:
+                if len(self.safeSquares) == 0:
+                    return self.selectSafe()
+                tempSafe = self.safeSquares.pop()
+            return tempSafe
+
         elif self.minesLeft >=0:
             noClicky = self.mineNeighbours()
             print("Avoiding: ", noClicky)
@@ -184,7 +190,7 @@ class Agent(GameAI):
                 relevantNumberedSquares.update({k : v})
             i+=1
         self.minesLeft = self.mineCount - len(self.flags)
-        eval1 = Evaluation(self.numberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
+        eval1 = Evaluation(relevantNumberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
         tempFlags, tempSafe = eval1.equationSolver()
         #print("TEMP FLAGS: ", tempFlags)
         self.safeSquares = tempSafe
@@ -194,7 +200,7 @@ class Agent(GameAI):
             self.flags.append(c)
         self.minesLeft = self.mineCount - len(self.flags)
         #print("MINES TO GO: ",self.minesLeft)
-        #print("MINES:", self.flags)
+        print("MINES:", self.flags)
 
     def cleanMines(self):
         temp = list(self.flags)
