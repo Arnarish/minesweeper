@@ -102,7 +102,9 @@ class Agent(GameAI):
             #print("Getting adj of :",k[0],k[1])
             allNeighbours.append(self.adjacent(k[0],k[1]))
             #print("ALL NEIGHBOURS: ",allNeighbours) 
-        #squares that have neighbours in common with other squares, each number corresponds to the index in the numberedsquares 
+        #squares that have neighbours in common with other squares, each number corresponds to the index in the numberedsquares
+         
+        self.adjSafeSquares(allNeighbours)
         inCommon = []
         #number of numberedsquares that have neighbours in common with other numberedsquares
         counter = 0
@@ -126,7 +128,7 @@ class Agent(GameAI):
         #Find and update the known mines
         #Only required if we do not know of all mines
         self.findMines(inCommon)
-        #self.cleanMines()
+        self.clean()
         #No mines known, selecting a random point with some logic
         if len(self.flags) == 0:
                 while True:
@@ -143,10 +145,6 @@ class Agent(GameAI):
             print("Selecting safe square: ", self.safeSquares[-1])
             self.exploredSquares +=1
             tempSafe = self.safeSquares.pop() 
-            while tempSafe in self.flags:
-                if len(self.safeSquares) == 0:
-                    return self.selectSafe()
-                tempSafe = self.safeSquares.pop()
             return tempSafe
 
         elif self.minesLeft >=0:
@@ -197,18 +195,23 @@ class Agent(GameAI):
         self.checkForCertainBombs()
         self.flags = tempFlags
         for c in self.certainBombs:
-            self.flags.append(c)
+            if c not in self.flags:
+                self.flags.append(c)
         self.minesLeft = self.mineCount - len(self.flags)
         #print("MINES TO GO: ",self.minesLeft)
         print("MINES:", self.flags)
 
-    def cleanMines(self):
-        temp = list(self.flags)
-        for mine in temp:
-            if mine in self.exposedSquares:
-                #print(mine, " has been found not to be a mine, removing.")
-                temp.remove(mine)
-        self.flags = tuple(temp)
+    def clean(self):
+        for x in self.safeSquares:
+            if x in self.flags:
+                self.safeSquares.remove(x)
+
+    def adjSafeSquares(self, neighbours):
+        print("SAFE SQUARES?!")
+        i = 0
+        for key, val in self.numberedSquares.items():
+            print(neighbours[i])
+            i +=1
 
     def mineNeighbours(self):
         #print("Finding mine neighbours")
