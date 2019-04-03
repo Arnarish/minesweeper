@@ -88,6 +88,7 @@ class Agent(GameAI):
             i+=1
         print("ALL NEIGHBOURS:",allNeighbours)
         print("isCommon:",inCommon)
+        self.findMines(inCommon)
         if counter < 3:
             while True:
                 x = random.randint(0, self.width - 1)
@@ -97,8 +98,8 @@ class Agent(GameAI):
                 print('selecting point ({0},{1})'.format(x, y))
             return x, y
         else:
-            flags = self.get_flags(inCommon)
-            if flags == []:
+            #flags = self.get_flags(inCommon)
+            if self.flags == []:
                 while True:
                     x = random.randint(0, self.width - 1)
                     y = random.randint(0, self.height - 1)
@@ -106,12 +107,21 @@ class Agent(GameAI):
                         break
                     print('selecting point ({0},{1})'.format(x, y))
                 return x, y
-
-            for f in flags:
-                self.flags.append(f)
-                self.mines-=1
             
-        
+    def findMines(self, inCommon):
+        print("getting flags for...")
+        print("NUMBERED SQUARES: ",self.numberedSquares)
+        print("CURRENT GRID: ",self.currGrid)
+        i = 0
+        relevantNumberedSquares = {}
+        for k,v in self.numberedSquares.items():
+            if i in inCommon:
+                relevantNumberedSquares.update({k : v})
+            i+=1
+        eval1 = Evaluation(relevantNumberedSquares,self.mines,self.currGrid,self.width,self.height)
+        tempFlags = eval1.equationSolver()
+        self.flags.append(tempFlags)
+        print("MINES:", self.flags)
 
     def update(self, result):
         """
@@ -125,26 +135,16 @@ class Agent(GameAI):
         for key,value in self.exposedSquares.items():
             if value > 0:
                 self.numberedSquares.update({key : value})
+                
     def get_flags(self,inCommon):
         """
         Return a list of coordinates for known mines. The coordinates are 2d tuples.
         """
-        print("getting flags for...")
         #getting the numbered squares only, value = 0 means that its just a safe unlocked square
         #print("NUMBERED SQUARES: ",self.numberedSquares)
         #numberedSquares,minesLeft,grid,gridWidth,gridHeight
-        print("NUMBERED SQUARES: ",self.numberedSquares)
-        print("CURRENT GRID: ",self.currGrid)
-        i = 0
-        relevantNumberedSquares = {}
-        for k,v in self.numberedSquares.items():
-            if i in inCommon:
-                relevantNumberedSquares.update({k : v})
-            i+=1
-        eval1 = Evaluation(relevantNumberedSquares,self.mines,self.currGrid,self.width,self.height)
-        flags = eval1.equationSolver()
-        print("MINES:", flags)
-        return flags
+        
+        return self.flags
 
 
 
