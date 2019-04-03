@@ -90,8 +90,7 @@ class Evaluation:
                 if okay == 'r':
                     matrixB = self.removeResultZero(matrixB)
                 if okay == 'n':
-                    return []   
-            
+                    return []     
         #print("MINES FOUND: ",self.flags)    
         #print("TEMP AFTER REMOVING",matrixB)    
         return matrixB
@@ -258,6 +257,7 @@ class Evaluation:
         #print(self.results)
         try:
             minesSolved = np.linalg.solve(matrixA,self.results)
+            print("MINES SOLVED: ",minesSolved)
         except:
             return self.flags
         
