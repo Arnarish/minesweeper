@@ -148,26 +148,19 @@ class Agent(GameAI):
             self.exploredSquares +=1
             return self.selectSafe()
 
-        elif self.minesLeft == 0:
-            safeSquares = []
-            while self.exploredSquares != self.safeSquareCount:
-                x, y = self.selectSafe()
-                if (x,y) not in safeSquares:
-                    self.exploredSquares +=1
-                    safeSquares.append((x,y))
-            return safeSquares
-
         else:
             x,y = self.selectSafe()
             self.exploredSquares +=1
             return x, y
 
     def selectSafe(self):
-        for x in range(0,self.width):
-            for y in range(0,self.height):
-                if (x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in self.forbiddenSquares:
-                    print("Safe selection: ",(x, y))
-                    return x, y  
+        while True:
+            x = random.randint(0,self.width-1)
+            y = random.randint(0,self.width-1)
+            if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
+                print("Safe selection: ",(x, y))
+                break
+        return x, y  
 
     def findMines(self, inCommon):
         #print("getting flags for...")
@@ -244,7 +237,7 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=2
+GAMES_COUNT=20
 WIDTH =10
 HEIGHT=10
 MINES_COUNT=10
@@ -252,7 +245,7 @@ MINES_COUNT=10
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(4)
+viz = None#GameVisualizer(1)
 
 counter=0
 lstSteps=[]
@@ -286,6 +279,7 @@ while counter <GAMES_COUNT:
     if viz: viz.finish()
     counter+=1
 
+print("Wins: ", counterWins)
 
 # plt.hist(lstSteps,normed=0,bins=np.max(lstSteps),edgecolor='black')
 # plt.show()
