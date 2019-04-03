@@ -41,6 +41,7 @@ class Agent(GameAI):
         self.minesLeft = self.mineCount
         self.safeSquareCount = game.num_safe_squares
         self.exploredSquares = 0
+        self.safeSquares = []
 
     def adjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -69,6 +70,7 @@ class Agent(GameAI):
         """
         Returns the next move as a tuple of (x,y)
         """
+        print("SAFE SPACES: ", self.safeSquares )
         #TODO: CHANGE THIS TO ACTUALLY SELECT A SAFE SQUARE
         #if the length of exposed squares is 1
         #or if the squares exposed don't have neighbours in common
@@ -104,7 +106,7 @@ class Agent(GameAI):
         self.findMines(inCommon)
         self.cleanMines()
         #No mines known, selecting a random point with some logic
-        if self.flags == []:
+        if len(self.flags) == 0:
                 while True:
                     x = random.randint(0, self.width - 1)
                     y = random.randint(0, self.height - 1)
@@ -115,13 +117,16 @@ class Agent(GameAI):
                         break
                 return x, y
         #Game ongoing, using some logic to choose a point and gain more information on the board
+        elif self.safeSquares != []:
+            print("IM DOING THE THING AT ", self.safeSquares[-1])
+            self.exploredSquares +=1
+            return self.safeSquares.pop()
         elif self.minesLeft >=0:
             noClicky = self.mineNeighbours()
             print("Avoiding: ", noClicky)
             while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if(x,y) not in noClicky and (x,y) not in self.flags:
+                x, y = self.selectSafe()
+                if (x,y) not in noClicky:
                     self.exploredSquares +=1
                     print('using logic to select point ({0},{1})'.format(x,y))
                     break
@@ -157,8 +162,9 @@ class Agent(GameAI):
             i+=1
         self.minesLeft = self.mineCount - len(self.flags)
         eval1 = Evaluation(self.numberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
-        tempFlags = eval1.equationSolver()
+        tempFlags, tempSafe = eval1.equationSolver()
         print("TEMP FLAGS: ", tempFlags)
+        self.safeSquares = tempSafe
         self.flags = tempFlags
         self.minesLeft = self.mineCount - len(self.flags)
         print("MINES TO GO: ",self.minesLeft)
@@ -193,6 +199,7 @@ class Agent(GameAI):
         for key,value in self.exposedSquares.items():
             if value > 0:
                 self.numberedSquares.update({key : value})
+       
                 
     def get_flags(self,inCommon):
         """
@@ -207,9 +214,9 @@ class Agent(GameAI):
 
 
 GAMES_COUNT=2
-WIDTH =8
-HEIGHT=8
-MINES_COUNT=5
+WIDTH =10
+HEIGHT=10
+MINES_COUNT=10
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
