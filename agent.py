@@ -43,6 +43,7 @@ class Agent(GameAI):
         self.exploredSquares = 0
         self.safeSquares = []
         self.certainBombs = []
+        self.forbiddenSquares = []
 
     def checkForCertainBombs(self):
         for x in range(0,self.width-1):
@@ -129,17 +130,12 @@ class Agent(GameAI):
         #Only required if we do not know of all mines
         self.findMines(inCommon)
         self.clean()
+        self.forbiddenSquares = self.mineNeighbours()
         #No mines known, selecting a random point with some logic
         if len(self.flags) == 0:
-                while True:
-                    x = random.randint(0, self.width - 1)
-                    y = random.randint(0, self.height - 1)
-                    #Avoid selecting a neighbour
-                    if (x, y) not in self.exposedSquares and (x, y) not in allNeighbours:
-                        self.exploredSquares += 1
-                        print('carefully selecting point ({0},{1})'.format(x, y))
-                        break
-                return x, y
+            self.exploredSquares +=1   
+            return self.selectSafe()
+
         #Game ongoing, using some logic to choose a point and gain more information on the board
         elif self.safeSquares != []:
             print("Selecting safe square: ", self.safeSquares[-1])
@@ -148,15 +144,10 @@ class Agent(GameAI):
             return tempSafe
 
         elif self.minesLeft >=0:
-            noClicky = self.mineNeighbours()
-            print("Avoiding: ", noClicky)
-            while True:
-                x, y = self.selectSafe()
-                if (x,y) not in noClicky:
-                    self.exploredSquares +=1
-                    print('using logic to select point ({0},{1})'.format(x,y))
-                    break
-            return x,y
+            print("Avoiding: ", self.forbiddenSquares)
+            self.exploredSquares +=1
+            return self.selectSafe()
+
         elif self.minesLeft == 0:
             safeSquares = []
             while self.exploredSquares != self.safeSquareCount:
@@ -165,6 +156,7 @@ class Agent(GameAI):
                     self.exploredSquares +=1
                     safeSquares.append((x,y))
             return safeSquares
+
         else:
             x,y = self.selectSafe()
             self.exploredSquares +=1
@@ -173,7 +165,7 @@ class Agent(GameAI):
     def selectSafe(self):
         for x in range(0,self.width):
             for y in range(0,self.height):
-                if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
+                if (x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in self.forbiddenSquares:
                     print("Safe selection: ",(x, y))
                     return x, y  
 
@@ -204,6 +196,7 @@ class Agent(GameAI):
     def clean(self):
         for x in self.safeSquares:
             if x in self.flags:
+                print("Removing ",x," from safe squares as it's a mine")
                 self.safeSquares.remove(x)
 
     def adjSafeSquares(self, neighbours):
@@ -259,7 +252,7 @@ MINES_COUNT=10
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(2)
+viz = GameVisualizer(4)
 
 counter=0
 lstSteps=[]
