@@ -28,9 +28,18 @@ class Agent(GameAI):
         self.width = config.width
         self.height = config.height
         self.exposedSquares = {}
+        self.exposedSquares.clear()
         self.numberedSquares = {}
+        self.numberedSquares.clear()
         self.currGrid = []
-        self.mines = config.num_mines
+        self.currGrid.clear()
+        self.mines = []
+        self.mines.clear()
+        self.mineCount = config.num_mines
+        self.minesLeft = self.mineCount
+        self.safeSquareCount = (self.width*self.height)-self.mineCount
+        self.exploredSquares = 0
+
     def adjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
         # (x-1,y+1) (x,y+1) (x+1,y+1)
@@ -87,31 +96,58 @@ class Agent(GameAI):
                 
             i+=1
         print("ALL NEIGHBOURS:",allNeighbours)
-        print("isCommon:",inCommon)
-        self.findMines(inCommon)
-        if counter < 3:
-            while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if (x, y) not in self.exposedSquares:
-                    break
-                print('selecting point ({0},{1})'.format(x, y))
-            return x, y
-        else:
-            #flags = self.get_flags(inCommon)
-            if self.flags == []:
+        #print("isCommon:",inCommon)
+        #Find and update the known mines
+        #Only required if we do not know of all mines
+        if self.minesLeft != 0:
+            self.findMines(inCommon)
+        #No mines known, selecting a random point with some logic
+        if self.flags == []:
                 while True:
                     x = random.randint(0, self.width - 1)
                     y = random.randint(0, self.height - 1)
-                    if (x, y) not in self.exposedSquares:
+                    #Avoid selecting a neighbour
+                    if (x, y) not in self.exposedSquares and (x, y) not in allNeighbours:
+                        self.exploredSquares += 1
+                        print('carefully selecting point ({0},{1})'.format(x, y))
                         break
-                    print('selecting point ({0},{1})'.format(x, y))
                 return x, y
+        #we know where the mines are, selecting a point with no mines and not exposed
+        elif self.minesLeft == 0:
+            restOfTheBoard = []
+            while True:
+                x = random.randint(0, self.width - 1)
+                y = random.randint(0, self.height - 1)
+                if(x,y) not in self.exposedSquares and (x,y) not in self.flags and (x,y) not in restOfTheBoard:
+                    restOfTheBoard.append((x,y))
+                    self.exploredSquares += 1
+                    print('adding point ({0},{1})'.format(x, y))
+                    if self.exploredSquares == self.safeSquareCount:
+                        break
+        #Game ongoing, using some logic to choose a point and gain more information on the board
+        elif self.flags != [] and self.minesLeft !=0:
+            while True:
+                x = random.randint(0, self.width - 1)
+                y = random.randint(0, self.height - 1)
+                if(x,y) in random.choice(allNeighbours) and (x,y) not in self.flags:
+                    self.exploredSquares +=1
+                    print('using logic to select point ({0},{1})'.format(x,y))
+                    break
+            return x,y
+        else:
+            while True:
+                x = random.randint(0, self.width - 1)
+                y = random.randint(0, self.height - 1)
+                if(x,y) not in self.exposedSquares and (x,y) not in self.flags:
+                    self.exploredSquares += 1
+                    print('randomly selecting point ({0},{1})'.format(x, y))
+                    break
+            return x, y
             
     def findMines(self, inCommon):
-        print("getting flags for...")
-        print("NUMBERED SQUARES: ",self.numberedSquares)
-        print("CURRENT GRID: ",self.currGrid)
+        #print("getting flags for...")
+        #print("NUMBERED SQUARES: ",self.numberedSquares)
+        #print("CURRENT GRID: ",self.currGrid)
         i = 0
         relevantNumberedSquares = {}
         for k,v in self.numberedSquares.items():
@@ -120,7 +156,14 @@ class Agent(GameAI):
             i+=1
         eval1 = Evaluation(relevantNumberedSquares,self.mines,self.currGrid,self.width,self.height)
         tempFlags = eval1.equationSolver()
-        self.flags.append(tempFlags)
+        print("TEMP FLAGS: ", tempFlags)
+        self.flags = tempFlags
+        for flag in tempFlags:
+            if flag != None and flag not in self.flags:
+                self.flags.append(flag)
+        self.minesLeft = self.mineCount - len(self.mines)
+        if self.minesLeft <= 0:
+            print(" ----- We should be done here -----")
         print("MINES:", self.flags)
 
     def update(self, result):
@@ -156,7 +199,7 @@ MINES_COUNT=5
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(2)
+viz = GameVisualizer(3)
 
 counter=0
 lstSteps=[]
@@ -176,7 +219,7 @@ while counter <GAMES_COUNT:
         if not result.explosion:
             stepsCount+=1
             ai.update(result)
-            #game.set_flags(ai.flags)
+            game.set_flags(ai.flags)
             if game.num_exposed_squares == game.num_safe_squares:
                 print("HORRRRRRRRRRRAAAY")
                 if viz: viz.update(game)
