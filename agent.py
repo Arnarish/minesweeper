@@ -126,16 +126,24 @@ class Agent(GameAI):
                     print('using logic to select point ({0},{1})'.format(x,y))
                     break
             return x,y
+        elif self.minesLeft == 0:
+            safeSquares = []
+            while self.exploredSquares != self.safeSquareCount:
+                x, y = self.selectSafe()
+                if (x,y) not in safeSquares:
+                    safeSquares.append((x,y))
+            return safeSquares
         else:
-            while True:
-                x = random.randint(0, self.width - 1)
-                y = random.randint(0, self.height - 1)
-                if(x,y) not in self.exposedSquares and (x,y) not in self.flags:
-                    self.exploredSquares += 1
-                    print('randomly selecting point ({0},{1})'.format(x, y))
-                    break
+            x,y = self.selectSafe()
+            self.exploredSquares +=1
             return x, y
-            
+
+    def selectSafe(self):
+        for x in range(0,self.width):
+            for y in range(0,self.height):
+                
+                if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
+                    return x, y        
     def findMines(self, inCommon):
         #print("getting flags for...")
         #print("NUMBERED SQUARES: ",self.numberedSquares)
@@ -146,13 +154,11 @@ class Agent(GameAI):
             if i in inCommon:
                 relevantNumberedSquares.update({k : v})
             i+=1
-        eval1 = Evaluation(relevantNumberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
+        self.minesLeft = self.mineCount - len(self.flags)
+        eval1 = Evaluation(self.numberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
         tempFlags = eval1.equationSolver()
         print("TEMP FLAGS: ", tempFlags)
         self.flags = tempFlags
-        for flag in tempFlags:
-            if flag != None and flag not in self.flags:
-                self.flags.append(flag)
         self.minesLeft = self.mineCount - len(self.flags)
         print("MINES TO GO: ",self.minesLeft)
         print("MINES:", self.flags)
@@ -228,7 +234,6 @@ while counter <GAMES_COUNT:
             stepsCount+=1
             ai.update(result)
             game.set_flags(ai.flags)
-            print(game.flags)
             if game.num_exposed_squares == game.num_safe_squares:
                 print("HORRRRRRRRRRRAAAY")
                 if viz: viz.update(game)
