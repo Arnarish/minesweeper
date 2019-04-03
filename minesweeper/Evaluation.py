@@ -80,7 +80,7 @@ class Evaluation:
             if self.mineCounter == 0:
                 return []
             okay = self.isOkay(matrixB)
-            if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) < 2:
+            if len(self.variables) == 0 or len(self.results) == 0 or len(matrixB) == 0:
                 return []
             else: 
                 if okay == 'o':

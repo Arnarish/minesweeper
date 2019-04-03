@@ -124,8 +124,6 @@ class Agent(GameAI):
         for k in self.numberedSquares:
             allNeighbours.append(self.adjacent(k[0],k[1]))
         #squares that have neighbours in common with other squares, each number corresponds to the index in the numberedsquares
-         
-        self.adjSafeSquares(allNeighbours)
         inCommon = []
         #number of numberedsquares that have neighbours in common with other numberedsquares
         counter = 0
@@ -147,8 +145,9 @@ class Agent(GameAI):
         #Find and update the known mines
         #Only required if we do not know of all mines
         self.findMines(inCommon)
-        self.clean(self.safeSquares)
+        self.clean()
         self.forbiddenSquares = self.mineNeighbours()
+        self.adjSafeSquares(allNeighbours)
 
     def selectSafe(self):
         length = len(self.nonExposedSquares)-1
@@ -185,10 +184,10 @@ class Agent(GameAI):
         #print("MINES TO GO: ",self.minesLeft)
         #print("MINES:", self.flags)
 
-    def clean(self, toClean):
-        for x in toClean:
+    def clean(self):
+        for x in self.safeSquares:
             if x in self.flags:
-                toClean.remove(x)
+                self.safeSquares.remove(x)
         
 
     def adjSafeSquares(self, neighbours):
@@ -255,7 +254,7 @@ class Agent(GameAI):
 GAMES_COUNT=2
 WIDTH =16
 HEIGHT=16
-MINES_COUNT=40
+MINES_COUNT=20
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
