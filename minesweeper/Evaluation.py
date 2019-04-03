@@ -13,7 +13,6 @@ class Evaluation:
         self.flags = []
         self.variables = []
         self.results = []
-        self.safe = []
         self.mineCounter = -1
 
     def init(self, numberedSquares, minesLeft, grid, gridWidth, gridHeight):
@@ -26,8 +25,6 @@ class Evaluation:
         self.flags.clear()
         self.results = []
         self.results.clear()
-        self.safe = []
-        self.safe.clear()
         self.mineCounter = self.minesLeft
 
     def getAdjacent(self,x,y):
@@ -181,7 +178,6 @@ class Evaluation:
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
                     self.variables.pop(i)
-                    #self.safe.append(self.variables.pop(i))
                 else:
                     return []
                 for j in range(0,len(temp)):
@@ -209,7 +205,7 @@ class Evaluation:
                     return []
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
-                    self.safe.append(self.variables.pop(i))
+                    self.variables.pop(i)
                 else:
                     return []
                 for j in range(0,len(temp)):
@@ -218,8 +214,6 @@ class Evaluation:
                     #print(j,i)
                 #3. remove the variable from each other equation and subtract the value in the result
                     temp[j].pop(i)
-
-                
                 #print("Remove result zero i: ",i)
         
         matrix = np.array(temp)
@@ -255,7 +249,7 @@ class Evaluation:
         matrixA = self.matrixValidation(matrixA)
         
         if matrixA ==[]:
-            return self.flags, self.safe 
+            return self.flags
         #print("Matrix A: ",matrixA, " size: ", matrixA.size)
         # 5. the squares value goes into a seperate list (list2)
         #print("self.results: ",self.results)
@@ -265,7 +259,7 @@ class Evaluation:
         try:
             minesSolved = np.linalg.solve(matrixA,self.results)
         except:
-            return self.flags, self.safe
+            return self.flags
         
         # 7. where there is a 1, means that:
         #sprint("Mines: ",minesSolved)

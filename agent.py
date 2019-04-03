@@ -183,9 +183,9 @@ class Agent(GameAI):
             i+=1
         self.minesLeft = self.mineCount - len(self.flags)
         eval1 = Evaluation(relevantNumberedSquares,self.minesLeft,self.currGrid,self.width,self.height)
-        tempFlags, tempSafe = eval1.equationSolver()
+        tempFlags = eval1.equationSolver()
         #print("TEMP FLAGS: ", tempFlags)
-        self.safeSquares = tempSafe
+
         self.checkForCertainBombs()
         self.flags = tempFlags
         for c in self.certainBombs:
@@ -265,7 +265,7 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=2
+GAMES_COUNT=20
 WIDTH =16
 HEIGHT=16
 MINES_COUNT=20
