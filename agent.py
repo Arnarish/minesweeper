@@ -70,7 +70,7 @@ class Agent(GameAI):
         """
         Returns the next move as a tuple of (x,y)
         """
-        print("SAFE SPACES: ", self.safeSquares )
+        print(self.currGrid)
         #TODO: CHANGE THIS TO ACTUALLY SELECT A SAFE SQUARE
         #if the length of exposed squares is 1
         #or if the squares exposed don't have neighbours in common
@@ -221,7 +221,7 @@ MINES_COUNT=10
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)
 game = Game(config)
-viz = GameVisualizer(5)
+viz = GameVisualizer(2)
 
 counter=0
 lstSteps=[]
