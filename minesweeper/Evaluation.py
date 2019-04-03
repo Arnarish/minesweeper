@@ -13,6 +13,7 @@ class Evaluation:
         self.flags = []
         self.variables = []
         self.results = []
+        self.safe = []
     def init(self, numberedSquares, minesLeft, grid, gridWidth, gridHeight):
         self.numberedSquares = numberedSquares #map where x,y is the key and the number is the value
         self.minesLeft = minesLeft #int number of mines
@@ -21,6 +22,7 @@ class Evaluation:
         self.gridHeight = gridHeight
         self.flags = []
         self.results = []
+        self.safe = []
 
     def getAdjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -68,10 +70,10 @@ class Evaluation:
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
         return np.array(matrixB)
     def matrixValidation(self,matrixB):
-        print("NR OF MINES:",self.minesLeft)
+        #print("NR OF MINES:",self.minesLeft)
         okay = ''            
         while okay != 't':
-            print("OKAY:",okay)
+            #print("OKAY:",okay)
             if self.minesLeft == 0:
                 return []
             okay = self.isOkay(matrixB)
@@ -169,13 +171,13 @@ class Evaluation:
                 break
             if all(v == 0 for v in temp[i]) and i<len(temp):
                 #some fields enter as pure zeroes, removing
-                #print(temp[i], " IS A ZERO MATRIX")
+                print(temp[i], " IS A ZERO MATRIX, point:",self.variables[i])
                 temp.remove(temp[i])
                 if len(self.variables) == 0 or len(self.results) == 0:
                     return []
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
-                    self.variables.pop(i)
+                    self.safe.append(self.variables.pop(i))
                 else:
                     return []
                 for j in range(0,len(temp)):
@@ -195,7 +197,7 @@ class Evaluation:
             if i >= len(temp):
                 break
             if self.results[i] == 0 and i<len(temp):
-                #print(" ZERO RESULT AT RESULTS ", i)
+                print(" ZERO RESULT , point:",self.variables[i])
                 #1. remove the equation from the matrix
                 temp.remove(temp[i])
                 #2. pop the result for that equation
@@ -203,7 +205,7 @@ class Evaluation:
                     return []
                 if i < len(self.variables) and i < len(self.results):
                     self.results.pop(i)
-                    self.variables.pop(i)
+                    self.safe.append(self.variables.pop(i))
                 else:
                     return []
                 for j in range(0,len(temp)):
@@ -247,9 +249,9 @@ class Evaluation:
         #print("INITIAL RESULTS: ",self.results)
         print("VARIABLES: ",self.variables)
         matrixA = self.matrixValidation(matrixA)
-
+        
         if matrixA ==[]:
-            return self.flags 
+            return self.flags, self.safe 
         #print("Matrix A: ",matrixA, " size: ", matrixA.size)
         # 5. the squares value goes into a seperate list (list2)
         #print("self.results: ",self.results)
@@ -259,7 +261,7 @@ class Evaluation:
         try:
             minesSolved = np.linalg.solve(matrixA,self.results)
         except:
-            return self.flags
+            return self.flags, self.safe
         
         # 7. where there is a 1, means that:
         print("Mines: ",minesSolved)
@@ -269,7 +271,7 @@ class Evaluation:
         # E.G. if we have only 3 adjacent squares ([1,0,0][0,1,0][0,0,1])
         # and the result is [1,0,0] then that means the first square has a bomb, rest don't  
         #print("MINES: "+flags)
-        return self.flags
+        return self.flags, self.safe
 
 """
 numberedSquares =  {(2, 0): 1, (2, 1): 2, (2, 2): 1, (0, 3): 1, (1, 3): 1, (2, 3): 1}
