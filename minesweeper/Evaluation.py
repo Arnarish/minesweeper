@@ -63,8 +63,8 @@ class Evaluation:
         #where the matrix would end up full of 1's
         matrixB = np.array(matrixA)
         #print(matrixB)
-        for i in range(0,len(neighbours)-1):
-            for j in range(0,len(self.variables)-1):
+        for i in range(0,len(neighbours)):
+            for j in range(0,len(self.variables)):
                 if self.variables[j] in neighbours[i]:
                     #print(self.variables[j]," is in ",neighbours[i])
                     #print("changing position ",i,j," on the list")
