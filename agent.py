@@ -209,9 +209,28 @@ class Agent(GameAI):
     def adjSafeSquares(self, neighbours):
         print("SAFE SQUARES?!")
         i = 0
+        #get the number of neighbours that are bombs
+        #if that number is equal to the val of the numbered square
+        #we mark the rest of the squares as safe
+        #remove the numbered square because the mines have all been found
+        toDelete = []
         for key, val in self.numberedSquares.items():
+            countNeighbours = 0
+            possibleSafe = []
             print(neighbours[i])
+            for n in neighbours[i]:
+                if(n in self.flags):
+                    countNeighbours += 1
+                else:
+                    possibleSafe.append(n)
+            if countNeighbours == val:
+                toDelete.append(key)
+                for p in possibleSafe:
+                    self.safeSquares.append(p)
             i +=1
+        if len(toDelete) > 0:
+            for t in toDelete:
+                self.numberedSquares.pop(t)
 
     def mineNeighbours(self):
         #print("Finding mine neighbours")
