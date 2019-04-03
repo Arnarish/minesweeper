@@ -33,8 +33,8 @@ class Agent(GameAI):
         self.numberedSquares.clear()
         self.flags = []
         self.flags.clear()
-        self.currGrid = []
-        self.currGrid.clear()
+        self.currGrid = game.get_state()
+        #self.currGrid.clear()
         self.mines = []
         self.mines.clear()
         self.mineCount = config.num_mines
@@ -42,6 +42,26 @@ class Agent(GameAI):
         self.safeSquareCount = game.num_safe_squares
         self.exploredSquares = 0
         self.safeSquares = []
+        self.certainBombs = []
+
+    def checkForCertainBombs(self):
+        for x in range(0,self.width-1):
+            for y in range(0,self.height-1):
+                print("X,Y:",x,y)
+                if self.currGrid[x][y] == None and self.isLonely(x,y):
+                    self.certainBombs.append((x,y))
+
+    def isLonely(self,x,y):
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if i == 0 and j == 0:
+                    continue
+                #so we don't go out of bounds...
+                elif -1 < (x + i) < self.height and -1 < (y + j) < self.width:
+                    if self.currGrid[x+i][y+j] == None:
+                        return False
+        print(x,y," is a loner!")
+        return True
 
     def adjacent(self,x,y):
         #to be an adjacent square it MUST be an unopened square and be:
@@ -61,9 +81,11 @@ class Agent(GameAI):
                     if self.currGrid[x+i][y+j] == None:
                         neighbours.append((x + i, y + j))
                         #print(x+i,y+j," is a neighbour  of ",x,y)
-                
-
         #return the adjacent squares
+        if len(neighbours) == self.numberedSquares.get((x,y)):
+            for n in neighbours:
+                self.certainBombs.append(n)
+            return []
         return neighbours
 
     def next(self):
@@ -104,7 +126,7 @@ class Agent(GameAI):
         #Find and update the known mines
         #Only required if we do not know of all mines
         self.findMines(inCommon)
-        self.cleanMines()
+        #self.cleanMines()
         #No mines known, selecting a random point with some logic
         if len(self.flags) == 0:
                 while True:
@@ -149,7 +171,8 @@ class Agent(GameAI):
             for y in range(0,self.height):
                 
                 if (x,y) not in self.exposedSquares and (x,y) not in self.flags:
-                    return x, y        
+                    return x, y  
+
     def findMines(self, inCommon):
         #print("getting flags for...")
         #print("NUMBERED SQUARES: ",self.numberedSquares)
@@ -165,7 +188,10 @@ class Agent(GameAI):
         tempFlags, tempSafe = eval1.equationSolver()
         print("TEMP FLAGS: ", tempFlags)
         self.safeSquares = tempSafe
+        self.checkForCertainBombs()
         self.flags = tempFlags
+        for c in self.certainBombs:
+            self.flags.append(c)
         self.minesLeft = self.mineCount - len(self.flags)
         print("MINES TO GO: ",self.minesLeft)
         print("MINES:", self.flags)
@@ -180,8 +206,11 @@ class Agent(GameAI):
 
     def mineNeighbours(self):
         print("Finding mine neighbours")
+        if len(self.flags) == 0:
+            return []
         mineNeighbours = []
         for mine in self.flags:
+            print(mine)
             tmp = self.adjacent(mine[0],mine[1])
             for pos in tmp:
                 mineNeighbours.append(pos)
