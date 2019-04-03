@@ -55,7 +55,10 @@ class Agent(GameAI):
                 if self.currGrid[x][y] == None and self.isLonely(x,y):
                     self.certainBombs.append((x,y))
 
+
     def isLonely(self,x,y):
+        #lonely means only numbered squares for adjacent squares or out of the adjacent 1 is nonexposed and res is numbered
+        friendsCount = 0
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if i == 0 and j == 0:
@@ -63,6 +66,8 @@ class Agent(GameAI):
                 #so we don't go out of bounds...
                 elif -1 < (x + i) < self.height and -1 < (y + j) < self.width:
                     if self.currGrid[x+i][y+j] == None:
+                        friendsCount+= 1
+                    if friendsCount > 1:
                         return False
         #print(x,y," is a loner!")
         return True
@@ -156,12 +161,19 @@ class Agent(GameAI):
             return x, y
 
     def selectSafe(self):
+        length = len(self.nonExposedSquares)-1
         while True:
-            i = random.randint(0,len(self.nonExposedSquares)-1)
+            i = random.randint(0,length)
             xy = self.nonExposedSquares[i]
             if xy not in self.exposedSquares and xy not in self.flags and xy not in self.forbiddenSquares:
                 break
         return xy
+        """
+        for n in self.nonExposedSquares:
+            if n not in self.exposedSquares and n not in self.flags and n not in self.forbiddenSquares:
+                return n"""
+                
+        
 
     def getNonExposed(self):
         self.nonExposedSquares = []
@@ -265,10 +277,10 @@ class Agent(GameAI):
 
 
 
-GAMES_COUNT=20
-WIDTH =16
-HEIGHT=16
-MINES_COUNT=20
+GAMES_COUNT=3
+WIDTH =8
+HEIGHT=8
+MINES_COUNT=10
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)

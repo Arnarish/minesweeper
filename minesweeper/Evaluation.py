@@ -74,6 +74,7 @@ class Evaluation:
         return np.array(matrixB)
     def matrixValidation(self,matrixB):
         #print("NR OF MINES:",self.minesLeft)
+        """
         okay = ''            
         while okay != 't':
             #print("OKAY:",okay)
@@ -91,7 +92,7 @@ class Evaluation:
                     matrixB = self.removeResultZero(matrixB)
                 if okay == 'n':
                     return []   
-            
+        """    
         #print("MINES FOUND: ",self.flags)    
         #print("TEMP AFTER REMOVING",matrixB)    
         return matrixB
@@ -258,6 +259,7 @@ class Evaluation:
         #print(self.results)
         try:
             minesSolved = np.linalg.solve(matrixA,self.results)
+            print("MINES SOLVED: ",minesSolved)
         except:
             return self.flags
         
