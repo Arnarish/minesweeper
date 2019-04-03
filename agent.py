@@ -104,7 +104,10 @@ class Agent(GameAI):
         """
         Returns the next move as a tuple of (x,y)
         """
-
+        #In case too many mines have been marked, reset the known mines and try again
+        if self.Deadlock:
+            self.flags.clear()
+            self.evaluateBoard()
         #Open the next square in the safe list
         if len(self.safeSquares) != 0:
             print("Selecting safe square: ", self.safeSquares[-1])
@@ -185,6 +188,9 @@ class Agent(GameAI):
         #print("MINES:", self.flags)
 
     def clean(self):
+        #remove any duplicate entries
+        self.safeSquares = list(dict.fromkeys(self.safeSquares))
+        #iterate over the list and remove any suspected mines
         for x in self.safeSquares:
             if x in self.flags:
                 self.safeSquares.remove(x)
@@ -192,7 +198,7 @@ class Agent(GameAI):
 
     def adjSafeSquares(self, neighbours):
         i = 0
-        #get the number of neighbours that are bombs
+        #get the number of neighbours that are mines
         #if that number is equal to the val of the numbered square
         #we mark the rest of the squares as safe
         #remove the numbered square because the mines have all been found
@@ -209,7 +215,8 @@ class Agent(GameAI):
             if countNeighbours == val:
                 toDelete.append(key)
                 for p in tmp:
-                    self.safeSquares.append(p)
+                    if p not in self.safeSquares:
+                        self.safeSquares.append(p)
             i +=1
         if len(toDelete) > 0:
             for t in toDelete:
@@ -226,6 +233,11 @@ class Agent(GameAI):
             for pos in tmp:
                 mineNeighbours.append(pos)
         return tuple(mineNeighbours)
+
+    def Deadlock(self):
+        if self.flags == []:
+            return False
+        return set(self.flags) == set(self.nonExposedSquares)
 
     def update(self, result):
         """
@@ -252,9 +264,9 @@ class Agent(GameAI):
 
 
 GAMES_COUNT=2
-WIDTH =16
-HEIGHT=16
-MINES_COUNT=20
+WIDTH =8
+HEIGHT=8
+MINES_COUNT=8
 
 ai = Agent()
 config = GameConfig(width=WIDTH, height=HEIGHT, num_mines=MINES_COUNT)

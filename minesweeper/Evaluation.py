@@ -72,6 +72,7 @@ class Evaluation:
          
         #if the variable is an adjacent to the numbered square then it counts towards its equation 
         return np.array(matrixB)
+        
     def matrixValidation(self,matrixB):
         #print("NR OF MINES:",self.minesLeft)
         okay = ''            
@@ -97,7 +98,7 @@ class Evaluation:
         
     def isOkay(self, matrix):
         count = 0
-        if matrix == np.array([]):
+        if matrix.size == 0:
             return 'n'
         #matrix = np.array(matrix)
         temp = matrix.tolist()
@@ -116,8 +117,8 @@ class Evaluation:
         return 't'    
 
     def removeSingularOnes(self, matrix):
-        if matrix == np.array([]):
-            return []
+        if matrix.size == 0:
+            return np.array([])
         temp = matrix.tolist()
         #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
         #this means that the first variable is = 1; we then have to : 
@@ -157,7 +158,7 @@ class Evaluation:
 
 
     def removeZeroOnes(self,matrix):
-        if matrix == np.array([]):
+        if matrix.size == 0:
             return np.array([])
         temp = matrix.tolist()
         #When we find a singular on (E.G an equation of the kind 1 0 0 = 1)
@@ -214,6 +215,7 @@ class Evaluation:
                 #print("Remove result zero i: ",i)
         
         return np.array(temp)
+
     def equationSolver(self):
         #to make an equation of the form x0,x1,...,xn; n will be the highest 
         #number of adjacent squares from a numberedSquare 
@@ -244,7 +246,7 @@ class Evaluation:
         #print("VARIABLES: ",self.variables)
         matrixA = self.matrixValidation(matrixA)
         
-        if matrixA ==np.array([]):
+        if matrixA.size == 0:
             return self.flags
         #print("Matrix A: ",matrixA, " size: ", matrixA.size)
         # 5. the squares value goes into a seperate list (list2)
